@@ -211,6 +211,8 @@ class PedidoCreateView(CreateView):
                 form.add_error(None, str(e))
                 return self.form_invalid(form)
         else:
+            print("Errores en el formulario principal:", form.errors)
+            print("Errores en el FormSet:", detalle_formset.errors)
             return self.form_invalid(form)
 
 
