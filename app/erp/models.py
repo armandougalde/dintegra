@@ -102,37 +102,46 @@ class Almacen(models.Model):
 
 
 class Pedido(models.Model):
-    numero_pedido = models.CharField(max_length=10, unique=True, editable=True)
+    numero_pedido = models.CharField(max_length=20,primary_key=True, unique=True )  # Clave primaria como texto
     fecha_solicitud = models.DateField()
     cliente = models.ForeignKey('Cliente', on_delete=models.CASCADE)
     contrato = models.ForeignKey('Contrato', on_delete=models.CASCADE)
     almacen_entrega = models.ForeignKey('Almacen', on_delete=models.CASCADE)
     subtotal = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-    iva = models.DecimalField(default=0.00,max_digits=14, decimal_places=2)
-    total = models.DecimalField(default=0.00,max_digits=14, decimal_places=2)
+    iva = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    total = models.DecimalField(max_digits=14, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
-        # Calcular subtotal, IVA y total
+        # Calcular el subtotal sumando los importes de todos los detalles de pedido relacionados
         self.subtotal = sum([detalle.importe for detalle in self.detalles.all()])
+        
+        # Calcular el IVA (16%)
         self.iva = self.subtotal * Decimal('0.16')
+        
+        # Calcular el total
         self.total = self.subtotal + self.iva
         
-        # Guardar el pedido
+        # Guardar el Pedido
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Pedido {self.numero_pedido} - {self.cliente}"
+    
+
+
 
 class DetallePedido(models.Model):
-  
-    pedido = models.ForeignKey(Pedido, related_name='detalles', on_delete=models.CASCADE)
+    pedido = models.ForeignKey(Pedido, related_name='detalles', on_delete=models.CASCADE, to_field='numero_pedido')
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
-    presentacion = models.CharField(max_length=255)  # Selección con opciones
-    atenciones = models.CharField(max_length=50)
+    presentacion = models.ForeignKey('Presentacion', on_delete=models.CASCADE)
+    atenciones = models.TextField(blank=True, null=True)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     importe = models.DecimalField(max_digits=10, decimal_places=2, blank=True)
 
     def save(self, *args, **kwargs):
         self.importe = self.cantidad * self.precio_unitario
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.producto} - {self.cantidad} {self.presentacion}"

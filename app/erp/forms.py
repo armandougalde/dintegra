@@ -50,18 +50,13 @@ class PedidoForm(forms.ModelForm):
 class DetallePedidoForm(forms.ModelForm):
     class Meta:
         model = DetallePedido
-        fields = ['producto', 'cantidad', 'presentacion','atenciones', 'precio_unitario','importe']
-        widgets = {
-            'presentacion': forms.Select(),  # Especificar que es un campo de selección
-        }
+        fields = ['producto', 'cantidad', 'presentacion', 'atenciones', 'precio_unitario']
 
 DetallePedidoFormSet = inlineformset_factory(
     Pedido,
     DetallePedido,
-    
-    fields=['producto', 'cantidad', 'presentacion', 'atenciones', 'precio_unitario','importe'],
-    extra=1,  # Permitir agregar formularios adicionales
-    can_delete=True  # Permitir eliminar formularios
+    form=DetallePedidoForm,
+    extra=1,
+    can_delete=True
 )
-
 

@@ -146,7 +146,7 @@ class AlmacenDetailView(DetailView):
 class AlmacenCreateView(CreateView):
     model = Almacen
     fields = ['clave', 'nombre', 'calle', 'numero_exterior', 'numero_interior', 'colonia', 'codigo_postal', 'localidad', 'municipio', 'estado']
-    template_name = 'almacen_form.html'
+    template_name = 'almacenes/almacen_form.html'
     success_url = '/almacenes/'
 
     def form_valid(self, form):
@@ -182,37 +182,37 @@ class PedidoCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data['productos'] = Producto.objects.all()  # Cargar todos los productos
-        data['presentaciones'] = Presentacion.objects.all()  # Cargar todos los productos
         if self.request.POST:
             data['detalle_formset'] = DetallePedidoFormSet(self.request.POST)
         else:
             data['detalle_formset'] = DetallePedidoFormSet()
+            data['productos'] = Producto.objects.all()
+            data['presentaciones'] = Presentacion.objects.all()
         return data
 
     def form_valid(self, form):
-        # Guardar el pedido con commit=False para obtener la instancia sin guardarla en la base de datos aún
-        self.object = form.save(commit=False)
-        print(f"Pedido guardado con ID: {self.object.pk}")  # Verifica si la clave primaria se genera correctamente
-        
-        # Guardar el pedido en la base de datos para que tenga una clave primaria
-        self.object.save()
-        print(f"Pedido guardado en la base de datos con ID: {self.object.pk}")
-        
-        # Procesar el formset de detalles del pedido
         context = self.get_context_data()
         detalle_formset = context['detalle_formset']
-        
-        if detalle_formset.is_valid():
-            # Asignar la instancia del pedido a cada detalle del formset
-            detalle_formset.instance = self.object
-            detalle_formset.save()
-            print("DetallePedido guardado correctamente")
-            return super().form_valid(form)
+
+        if form.is_valid() and detalle_formset.is_valid():
+            try:
+                with transaction.atomic():
+                    # Guardar el Pedido primero
+                    self.object = form.save()
+
+                    # Asignar la instancia del Pedido al formset
+                    detalle_formset.instance = self.object
+                    print(f"Cantidad de formularios en el FormSet: {len(detalle_formset.forms)}")
+                    detalle_formset.save()
+                    self.object.save()
+
+                return redirect(self.success_url)
+            except Exception as e:
+                form.add_error(None, str(e))
+                return self.form_invalid(form)
         else:
-            print("Detalle FormSet no es válido")
-            # Si el formset no es válido, devolver el formulario con errores
             return self.form_invalid(form)
+
 
 class PedidoListView(ListView):
     model = Pedido

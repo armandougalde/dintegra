@@ -13,10 +13,13 @@
     <p><strong>Almacén de Entrega:</strong> {{ pedido.almacen_entrega.nombre }}</p>
   </div>
 
-  <form method="post" class="" novalidate>
+  <form method="post">
     {% csrf_token %}
-    <h3>Detalles del Pedido</h3>
-    <table id="detalle-table" class="table">
+    {{ form.as_p }}
+    
+    <h3>Detalle de Productos</h3>
+    {{ detalle_formset.management_form }}
+    <table>
       <thead>
         <tr>
           <th>Producto</th>
@@ -25,66 +28,24 @@
           <th>Atenciones</th>
           <th>Precio Unitario</th>
           <th>Importe</th>
-          <th>Acciones</th>
         </tr>
       </thead>
-      <tbody id="detalle-body">
+      <tbody>
         {% for form in detalle_formset %}
-          <tr class="detalle-row">
-            <td>
-              <select name="{{ form.prefix }}-producto" class="producto-select form-control">
-                <option value="">Seleccione un producto</option>
-                {% for producto in productos %}
-                  <option value="{{ producto.id }}" data-precio="{{ producto.precio_unitario }}" {% if form.instance.producto and form.instance.producto.id == producto.id %}selected{% endif %}>{{ producto.nombre }}</option>
-                {% endfor %}
-              </select>
-            </td>
+          <tr>
+            <td>{{ form.producto }}</td>
             <td>{{ form.cantidad }}</td>
-            <td>
-              <select name="{{ form.prefix }}-presentacion" class="presentacion-select form-control">
-                <option value="">Seleccione una presentación</option>
-                {% for presentacion in presentaciones %}
-                  <option value="{{ presentacion.id }}" {% if form.instance.presentacion and form.instance.presentacion.id ==presentacion.id %}selected{% endif %}>{{ presentacion.nombre }}</option>
-                {% endfor %}
-              </select>
-            </td>
+            <td>{{ form.presentacion }}</td>
             <td>{{ form.atenciones }}</td>
-            <td><input type="text" name="{{ form.prefix }}-precio_unitario" value="{{ form.instance.precio_unitario }}" readonly class="form-control precio-unitario" /></td>
-            <td><input type="text" name="{{ form.prefix }}-importe" value="{{ form.instance.importe }}" readonly class="form-control importe" /></td>
-            <td>
-              <button type="button" class="btn btn-danger btn-sm remove-row">Eliminar</button>
-            </td>
+            <td>{{ form.precio_unitario }}</td>
+            <td>{{ form.importe }}</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
-    <button type="button" class="btn btn-primary add-row">Agregar Producto</button>
-
-    <div class="mt-4">
-      <div class="form-group row">
-        <label for="subtotal" class="col-sm-2 col-form-label">Subtotal:</label>
-        <div class="col-sm-10">
-          <input type="text" id="subtotal" name="subtotal" class="form-control" value="{{ pedido.subtotal }}" readonly>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="iva" class="col-sm-2 col-form-label">IVA (16%):</label>
-        <div class="col-sm-10">
-          <input type="text" id="iva" name="iva" class="form-control" value="{{ pedido.iva }}" readonly>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="total" class="col-sm-2 col-form-label">Total:</label>
-        <div class="col-sm-10">
-          <input type="text" id="total" name="total" class="form-control" value="{{ pedido.total }}" readonly>
-        </div>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Guardar Detalles del Pedido</button>
-    <a href="{% url 'pedido-list' %}" class="btn btn-secondary">Cancelar</a>
+    
+    <button type="submit">Guardar Pedido</button>
   </form>
-
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
