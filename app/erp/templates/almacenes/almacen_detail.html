@@ -1,0 +1,19 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Detalle del Almacén</h2>
+  <p>Clave: {{ almacen.clave }}</p>
+  <p>Nombre: {{ almacen.nombre }}</p>
+  <p>Cliente: {{ almacen.cliente.nombre }}</p>
+  <p>Calle: {{ almacen.calle }}</p>
+  <p>Número Exterior: {{ almacen.numero_exterior }}</p>
+  <p>Número Interior: {{ almacen.numero_interior }}</p>
+  <p>Colonia: {{ almacen.colonia }}</p>
+  <p>Código Postal: {{ almacen.codigo_postal }}</p>
+  <p>Localidad: {{ almacen.localidad }}</p>
+  <p>Municipio: {{ almacen.municipio }}</p>
+  <p>Estado: {{ almacen.estado }}</p>
+  <a href="{% url 'almacen-update' almacen.pk %}" class="btn btn-warning mt-3">Editar</a>
+  <a href="{% url 'almacen-delete' almacen.pk %}" class="btn btn-danger mt-3">Borrar</a>
+  <a href="{% url 'almacen-list'  %}" class="btn btn-primary mt-3">Regresar</a>
+{% endblock %}

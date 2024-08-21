@@ -1,0 +1,29 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Lista de Clientes</h2>
+  <a href="{% url 'cliente-create' %}" class="btn btn-primary mb-3">Nuevo Cliente</a>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cliente in clientes %}
+        <tr>
+          <td>
+            <a href="{% url 'cliente-detail' cliente.pk %}">{{ cliente.nombre }}</a>
+                        
+          </td>
+          <td>
+            <a href="{% url 'cliente-update' cliente.pk %}" class="btn btn-sm btn-warning">Editar</a>
+            <a href="{% url 'cliente-delete' cliente.pk %}" class="btn btn-sm btn-danger">Borrar</a>
+            <a href="{% url 'almacen-create' %}?cliente_id={{ cliente.pk }}" class="btn btn-sm btn-success">Agregar Almacén</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,0 +1,55 @@
+<!-- pedido_form.html -->
+
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Crear Pedido</h2>
+  <form method="post" class="needs-validation" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    
+    <h3>Detalles del Pedido</h3>
+    <table id="detalle-table" class="table">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Presentación</th>
+          <th>Atenciones</th>
+          <th>Precio Unitario</th>
+          <th>Importe</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody id="detalle-body">
+        {% for form in detalle_formset %}
+          <tr>
+            <td>{{ form.producto }}</td>
+            <td>{{ form.cantidad }}</td>
+            <td>{{ form.presentacion }}</td>
+            <td>{{ form.atenciones }}</td>
+            <td>{{ form.precio_unitario }}</td>
+            <td>{{ form.importe }}</td>
+            <td>{{ form.subtotal }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="{% url 'pedido-list' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.producto-select').forEach(function(select) {
+        select.addEventListener('change', function() {
+          let selectedOption = this.options[this.selectedIndex];
+          let precio = selectedOption.getAttribute('data-precio');
+          let row = this.closest('tr');
+          row.querySelector('input[name$="precio_unitario"]').value = precio;
+        });
+      });
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Detalle de Cliente</h2>
+  <ul class="list-group">
+    <li class="list-group-item">Clave: {{ cliente.clave }}</li>
+    <li class="list-group-item">RFC: {{ cliente.rfc }}</li>
+    <li class="list-group-item">Nombre: {{ cliente.nombre }}</li>
+    <li class="list-group-item">Calle: {{ cliente.calle }}</li>
+    <li class="list-group-item">Número Exterior: {{ cliente.numero_exterior }}</li>
+    <li class="list-group-item">Número Interior: {{ cliente.numero_interior }}</li>
+    <li class="list-group-item">Colonia: {{ cliente.colonia }}</li>
+    <li class="list-group-item">Código Postal: {{ cliente.codigo_postal }}</li>
+    <li class="list-group-item">Localidad: {{ cliente.localidad }}</li>
+    <li class="list-group-item">Municipio: {{ cliente.municipio }}</li>
+    <li class="list-group-item">Estado: {{ cliente.estado }}</li>
+  </ul>
+  <a href="{% url 'cliente-update' cliente.pk %}" class="btn btn-warning mt-3">Editar</a>
+  <a href="{% url 'cliente-delete' cliente.pk %}" class="btn btn-danger mt-3">Borrar</a>
+{% endblock %}

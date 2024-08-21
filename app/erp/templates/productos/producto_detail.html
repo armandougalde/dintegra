@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Detalle del Producto</h2>
+  <p>Nombre: {{ producto.nombre }}</p>
+  <p>Descripción: {{ producto.descripcion }}</p>
+  <p>Unidad de Cotización: {{ producto.unidad_cotizacion }}</p>
+  <p>Precio Unitario: {{ producto.precio_unitario }}</p>
+  <h3 class="mt-4">Presentaciones</h3>
+  <a href="{% url 'presentacion-create' %}?producto={{ producto.pk }}" class="btn btn-primary mb-3">Nueva Presentación</a>
+  <ul class="list-group">
+    {% for presentacion in producto.presentaciones.all %}
+      <li class="list-group-item">
+        {{ presentacion.get_tipo_presentacion_display }} - {{ presentacion.cantidad }} unidades
+        <a href="{% url 'presentacion-update' presentacion.pk %}" class="btn btn-sm btn-warning float-end ms-2">Editar</a>
+        <a href="{% url 'presentacion-delete' presentacion.pk %}" class="btn btn-sm btn-danger float-end">Borrar</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

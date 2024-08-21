@@ -1,0 +1,9 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Detalle de la Presentación</h2>
+  <p>Tipo de Presentación: {{ presentacion.get_tipo_presentacion_display }}</p>
+  <p>Cantidad: {{ presentacion.cantidad }}</p>
+  <a href="{% url 'presentacion-update' presentacion.pk %}" class="btn btn-warning mt-3">Editar</a>
+  <a href="{% url 'presentacion-delete' presentacion.pk %}" class="btn btn-danger mt-3">Borrar</a>
+{% endblock %}

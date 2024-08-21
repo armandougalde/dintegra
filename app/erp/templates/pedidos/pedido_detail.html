@@ -1,0 +1,24 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Detalle del Pedido</h2>
+  <p>ID: {{ pedido.numero_pedido }}</p>
+  <p>Cliente: {{ pedido.cliente.nombre }}</p>
+  <p>Contrato: {{ pedido.contrato.numero_contrato }}</p>
+  <p>Fecha de Pedido: {{ pedido.fecha_pedido }}</p>
+  <p>Total: {{ pedido.total }}</p>
+
+  <h3>Detalles del Pedido</h3>
+  <a href="{% url 'pedido-create' %}" class="btn btn-primary mb-3">Añadir Detalle</a>
+  <ul class="list-group">
+    {% for detalle in pedido.detalles.all %}
+      <li class="list-group-item">
+        {{ detalle.producto.nombre }} - {{ detalle.cantidad }} {{ detalle.presentacion.get_tipo_presentacion_display }} - {{ detalle.subtotal }}
+        <a href="{% url 'pedido-update' detalle.pk %}" class="btn btn-sm btn-warning float-end ms-2">Editar</a>
+        <a href="{% url 'pedido-delete' detalle.pk %}" class="btn btn-sm btn-danger float-end">Borrar</a>
+      </li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'pedido-update' pedido.pk %}" class="btn btn-warning mt-3">Editar</a>
+  <a href="{% url 'pedido-delete' pedido.pk %}" class="btn btn-danger mt-3">Borrar</a>
+{% endblock %}

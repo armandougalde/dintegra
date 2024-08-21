@@ -1,0 +1,18 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Detalle del Contrato</h2>
+  <ul class="list-group">
+    <li class="list-group-item">Número de Contrato: {{ contrato.numero_contrato }}</li>
+    <li class="list-group-item">Descripción: {{ contrato.descripcion }}</li>
+    <li class="list-group-item">Fecha de Firma: {{ contrato.fecha_firma }}</li>
+    <li class="list-group-item">Fecha de Inicio: {{ contrato.fecha_inicio }}</li>
+    <li class="list-group-item">Fecha de Fin: {{ contrato.fecha_fin }}</li>
+    <li class="list-group-item">Monto Mínimo: {{ contrato.monto_minimo }}</li>
+    <li class="list-group-item">Monto Máximo: {{ contrato.monto_maximo }}</li>
+    <li class="list-group-item">Cliente: {{ contrato.cliente.nombre }}</li>
+  </ul>
+  <a href="{% url 'contrato-update' contrato.pk %}" class="btn btn-warning mt-3">Editar</a>
+  <a href="{% url 'contrato-delete' contrato.pk %}" class="btn btn-danger mt-3">Borrar</a>
+{% endblock %}
+

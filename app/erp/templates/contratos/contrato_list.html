@@ -1,0 +1,31 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Lista de Contratos</h2>
+  <a href="{% url 'contrato-create' %}" class="btn btn-primary mb-3">Nuevo Contrato</a>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Número de Contrato</th>
+        <th>Descripción</th>
+        <th>Cliente</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contrato in contratos %}
+        <tr>
+          <td>
+            <a href="{% url 'contrato-detail' contrato.pk %}">{{ contrato.numero_contrato }}</a>
+          </td>
+          <td>{{ contrato.descripcion }}</td>
+          <td>{{ contrato.cliente.nombre }}</td>
+          <td>
+            <a href="{% url 'contrato-update' contrato.pk %}" class="btn btn-sm btn-warning">Editar</a>
+            <a href="{% url 'contrato-delete' contrato.pk %}" class="btn btn-sm btn-danger">Borrar</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

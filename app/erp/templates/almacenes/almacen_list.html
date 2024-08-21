@@ -1,0 +1,30 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Lista de Almacenes</h2>
+  <a href="{% url 'almacen-create' %}" class="btn btn-primary mb-3">Nuevo Almacén</a>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Clave</th>
+        <th>Nombre</th>
+        <th>Cliente</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for almacen in almacenes %}
+        <tr>
+          <td>{{ almacen.clave }}</td>
+          <td>{{ almacen.nombre }}</td>
+          <td>{{ almacen.cliente.nombre }}</td>
+          <td>
+            <a href="{% url 'almacen-detail' almacen.pk %}" class="btn btn-sm btn-info">Ver</a>
+            <a href="{% url 'almacen-update' almacen.pk %}" class="btn btn-sm btn-warning">Editar</a>
+            <a href="{% url 'almacen-delete' almacen.pk %}" class="btn btn-sm btn-danger">Borrar</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Lista de Presentaciones</h2>
+  <a href="{% url 'presentacion-create' %}" class="btn btn-primary mb-3">Nueva Presentación</a>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Tipo de Presentación</th>
+        <th>Cantidad</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for presentacion in presentaciones %}
+        <tr>
+          <td>{{ presentacion.nombre }}</td>
+          <td>{{ presentacion.cantidad }}</td>
+          <td>
+            <a href="{% url 'presentacion-detail' presentacion.pk %}" class="btn btn-sm btn-info">Ver</a>
+            <a href="{% url 'presentacion-update' presentacion.pk %}" class="btn btn-sm btn-warning">Editar</a>
+            <a href="{% url 'presentacion-delete' presentacion.pk %}" class="btn btn-sm btn-danger">Borrar</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">Confirmar Borrado</h2>
+  <p>¿Estás seguro de que quieres borrar la presentación "{{ presentacion.get_tipo_presentacion_display }}"?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Borrar</button>
+    <a href="{% url 'presentacion-list' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}
+

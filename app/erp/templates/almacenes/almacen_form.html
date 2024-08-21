@@ -1,0 +1,11 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2 class="mb-3">{% if object %}Editar{% else %}Nuevo{% endif %} Almacén</h2>
+  <form method="post" class="needs-validation" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="{% url 'almacen-list' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}
