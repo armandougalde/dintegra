@@ -81,7 +81,7 @@ DATABASES = {
         'NAME': 'dintegra',
         'USER': 'postgres',
         'PASSWORD': '850809',
-        'HOST': '189.230.169.199',  # O la dirección de tu servidor de base de datos
+        'HOST': '189.230.202.236',  # O la dirección de tu servidor de base de datos189.230.202.236
         'PORT': '5432',       # El puerto por defecto de PostgreSQL
     }
 }

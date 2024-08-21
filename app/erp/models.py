@@ -48,7 +48,7 @@ class Cliente(models.Model):
 
 class Contrato(models.Model):
     numero_contrato = models.CharField(max_length=20, unique=True)
-    descripcion = models.TextField()
+    descripcion = models.CharField(max_length=100)
     fecha_firma = models.DateField()
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
@@ -64,21 +64,18 @@ class Contrato(models.Model):
 
 
 class Producto(models.Model):
-    UNIDADES_CHOICES = [
-        ('LITRO', 'Litro'),
-        ('KILO', 'Kilo'),
-        ('PIEZA', 'Pieza'),
-    ]
+
     
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField(blank=True, null=True)
-    unidad_cotizacion = models.CharField(max_length=10, choices=UNIDADES_CHOICES)
+    unidad_cotizacion = models.CharField(max_length=10)
     precio_unitario = models.DecimalField(max_digits=14, decimal_places=2)
 
     def __str__(self):
         return self.nombre
 
 class Presentacion(models.Model):
+    
     nombre = models.CharField(max_length=100)
     cantidad = models.DecimalField(max_digits=5, decimal_places=2)
 
@@ -105,7 +102,7 @@ class Almacen(models.Model):
 
 
 class Pedido(models.Model):
-    numero_pedido = models.CharField(max_length=10, unique=True, editable=False)
+    numero_pedido = models.CharField(max_length=10, unique=True, editable=True)
     fecha_solicitud = models.DateField()
     cliente = models.ForeignKey('Cliente', on_delete=models.CASCADE)
     contrato = models.ForeignKey('Contrato', on_delete=models.CASCADE)
@@ -115,29 +112,23 @@ class Pedido(models.Model):
     total = models.DecimalField(default=0.00,max_digits=14, decimal_places=2)
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        # Calcular subtotal, IVA y total
         self.subtotal = sum([detalle.importe for detalle in self.detalles.all()])
         self.iva = self.subtotal * Decimal('0.16')
         self.total = self.subtotal + self.iva
         
-        if not self.numero_pedido:
-            # Generar un número de pedido secuencial
-            last_pedido = Pedido.objects.all().order_by('id').last()
-            if not last_pedido:
-                self.numero_pedido = 'PED0001'
-            else:
-                last_pedido_number = int(last_pedido.numero_pedido.split('PED')[-1])
-                self.numero_pedido = 'PED' + str(last_pedido_number + 1).zfill(4)
+        # Guardar el pedido
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Pedido {self.numero_pedido} - {self.cliente}"
 
 class DetallePedido(models.Model):
+  
     pedido = models.ForeignKey(Pedido, related_name='detalles', on_delete=models.CASCADE)
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
-    presentacion = models.ForeignKey('Presentacion', on_delete=models.CASCADE)
+    presentacion = models.CharField(max_length=255)  # Selección con opciones
     atenciones = models.CharField(max_length=50)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     importe = models.DecimalField(max_digits=10, decimal_places=2, blank=True)

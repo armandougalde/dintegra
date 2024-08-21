@@ -12,6 +12,7 @@
         <tr>
           <th>Producto</th>
           <th>Cantidad</th>
+          <th>Presentación</th>  <!-- Nueva columna para Presentación -->
           <th>Atenciones</th>
           <th>Precio Unitario</th>
           <th>Importe</th>
@@ -36,7 +37,17 @@
               <input type="number" name="{{ form.prefix }}-cantidad" class="form-control cantidad" min="1" value="{{ form.cantidad.value }}">
             </td>
             <td>
-              <input type="text" name="{{ form.prefix }}-atenciones" class="form-control atenciones" value="{{ form.atenciones.value }}" >
+              <select name="{{ form.prefix }}-presentacion" class="form-control presentacion-select">
+                <option value="">Seleccione una presentación</option>
+                {% for presentacion in presentaciones %}
+                  <option value="{{ presentacion.id }}" {% if form.instance.presentacion and form.instance.presentacion.id == presentacion.id %}selected{% endif %}>
+                    {{ presentacion.nombre }}
+                  </option>
+                {% endfor %}
+              </select>
+            </td>
+            <td>
+              <input type="text" name="{{ form.prefix }}-atenciones" class="form-control atenciones" value="{{ form.atenciones.value }}">
             </td>
             <td>
               <input type="text" name="{{ form.prefix }}-precio_unitario" class="form-control precio-unitario" value="{{ form.precio_unitario.value }}" readonly>
@@ -119,6 +130,7 @@
           input.value = '';
         });
         newRow.querySelector('.producto-select').selectedIndex = 0;
+        newRow.querySelector('.presentacion-select').selectedIndex = 0;  // Resetea la selección de presentación
         newRow.querySelector('.importe').value = '';
         document.getElementById('detalle-productos-table').querySelector('tbody').appendChild(newRow);
         newRow.querySelector('.remove-row').addEventListener('click', function() {

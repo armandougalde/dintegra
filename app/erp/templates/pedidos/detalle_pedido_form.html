@@ -44,7 +44,7 @@
               <select name="{{ form.prefix }}-presentacion" class="presentacion-select form-control">
                 <option value="">Seleccione una presentación</option>
                 {% for presentacion in presentaciones %}
-                  <option value="{{ presentacion.id }}" {% if form.instance.presentacion and form.instance.presentacion.id == presentacion.id %}selected{% endif %}>{{ presentacion.nombre }}</option>
+                  <option value="{{ presentacion.id }}" {% if form.instance.presentacion and form.instance.presentacion.id ==presentacion.id %}selected{% endif %}>{{ presentacion.nombre }}</option>
                 {% endfor %}
               </select>
             </td>
