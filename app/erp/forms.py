@@ -55,6 +55,7 @@ class DetallePedidoForm(forms.ModelForm):
 DetallePedidoFormSet = inlineformset_factory(
     Pedido,
     DetallePedido,
+    fields=['producto', 'cantidad', 'presentacion', 'atenciones', 'precio_unitario', 'importe'],
     form=DetallePedidoForm,
     extra=1,
     can_delete=True
