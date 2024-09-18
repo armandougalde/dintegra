@@ -1,8 +1,9 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-  <h2>Crear Pedido</h2>
+  <h2>Editar Pedido</h2>
   <form method="post" id="pedido-form">
+    
     {% csrf_token %}
     {{ form.as_p }}
     <h3>Detalle de Productos</h3>
@@ -10,18 +11,41 @@
     <table class="table" id="detalle-productos-table">
       <thead>
         <tr>
-          <th>Producto</th>
+          
           <th>Cantidad</th>
           <th>Presentación</th>  <!-- Nueva columna para Presentación -->
+          <th>Total litros</th>  <!-- Nueva columna para Presentación -->
+          <th>Producto</th>
           <th>Atenciones</th>
           <th>Precio Unitario</th>
+          <th>Precio Presentación</th>
           <th>Importe</th>
           <th>Eliminar</th>
         </tr>
       </thead>
       <tbody>
+        <input type="hidden" name="detalles-TOTAL_FORMS" id="id_form-TOTAL_FORMS" value="1">
         {% for form in detalle_formset %}
           <tr class="detalle-row">
+           
+            <td>
+              <input type="number" name="{{ form.prefix }}-cantidad" class="form-control cantidad" min="1" value="{{ form.cantidad.value }}">
+            </td>
+            <td>
+              <select name="{{ form.prefix }}-presentacion" class="form-control presentacion-select">
+                <option value="">Seleccione una presentación</option>
+                {% for presentacion in presentaciones %}
+                <option value="{{ presentacion.id }}" data-cantidad="{{ presentacion.cantidad }}" {% if form.instance.presentacion and form.instance.presentacion.id == presentacion.id %}selected{% endif %}>
+                    {{ presentacion.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+            </td>
+
+            <td>
+              <input type="text" name="{{ form.prefix }}-total_litros" class="form-control total-litros" value="{{ form.total_litros.value }}" readonly>
+          </td>
+
             <td>
               <select name="{{ form.prefix }}-producto" class="form-control producto-select">
                 <option value="">Seleccione un producto</option>
@@ -34,29 +58,20 @@
               </select>
             </td>
             <td>
-              <input type="number" name="{{ form.prefix }}-cantidad" class="form-control cantidad" min="1" value="{{ form.cantidad.value }}">
-            </td>
-            <td>
-              <select name="{{ form.prefix }}-presentacion" class="form-control presentacion-select">
-                <option value="">Seleccione una presentación</option>
-                {% for presentacion in presentaciones %}
-                  <option value="{{ presentacion.id }}" {% if form.instance.presentacion and form.instance.presentacion.id == presentacion.id %}selected{% endif %}>
-                    {{ presentacion.nombre }}
-                  </option>
-                {% endfor %}
-              </select>
-            </td>
-            <td>
               <input type="text" name="{{ form.prefix }}-atenciones" class="form-control atenciones" value="{{ form.atenciones.value }}">
             </td>
             <td>
               <input type="text" name="{{ form.prefix }}-precio_unitario" class="form-control precio-unitario" value="{{ form.precio_unitario.value }}" readonly>
             </td>
             <td>
+              <input type="text" name="{{ form.prefix }}-precio_presentacion" class="form-control precio-presentacion" value="{{ form.precio_presentacion.value }}" readonly>
+          </td>
+            <td>
               <input type="text" name="{{ form.prefix }}-importe" class="form-control importe" value="{{ form.importe.value }}" readonly>
             </td>
             <td>
-              <button type="button" class="btn btn-danger remove-row">Eliminar</button>
+              <input type="checkbox" name="{{ form.prefix }}-DELETE" class="form-check-input d-none"> <!-- Campo DELETE oculto -->
+                    <button type="button" class="btn btn-danger remove-row">Eliminar</button>
             </td>
           </tr>
         {% endfor %}
@@ -78,76 +93,152 @@
       <input type="text" id="total" class="form-control" readonly>
     </div>
     <button type="submit" class="btn btn-success">Guardar Pedido</button>
-    <a href="{% url 'pedido-list' %}" class="btn btn-secondary">Cancelar</a>
+    {% if pedido.numero_pedido %}
+  <a href="{% url 'pedido-detail' pedido.numero_pedido %}">Detalle del Pedido</a>
+{% else %}
+  
+{% endif %}
   </form>
-
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Función para actualizar los totales
-      function updateTotals() {
-        let subtotal = 0;
-        document.querySelectorAll('.detalle-row').forEach(function(row) {
-          let cantidad = parseFloat(row.querySelector('.cantidad').value) || 0;
-          let precio = parseFloat(row.querySelector('.precio-unitario').value) || 0;
-          let importe = cantidad * precio;
-          row.querySelector('.importe').value = importe.toFixed(2);
-          subtotal += importe;
-        });
-        let iva = subtotal * 0.16;
-        let total = subtotal + iva;
-        document.getElementById('subtotal').value = subtotal.toFixed(2);
-        document.getElementById('iva').value = iva.toFixed(2);
-        document.getElementById('total').value = total.toFixed(2);
+    document.addEventListener('DOMContentLoaded', function () {
+      let totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+      let formIdx = parseInt(totalFormsInput.value, 10);
+  
+      // Manejo de cliente para filtrar contratos y almacenes
+      $(document).ready(function() {
+          $('#id_cliente').change(function() {
+              const clienteId = $(this).val();
+              if (clienteId) {
+                  $.ajax({
+                      url: "{% url 'filtrar-contratos-almacenes' %}",
+                      data: {
+                          'cliente_id': clienteId
+                      },
+                      success: function(data) {
+                          const contratosSelect = $('#id_contrato');
+                          contratosSelect.empty();
+                          contratosSelect.append('<option value="">Seleccione un contrato</option>');
+                          data.contratos.forEach(contrato => {
+                              contratosSelect.append(`<option value="${contrato.id}">${contrato.numero_contrato}</option>`);
+                          });
+  
+                          const almacenesSelect = $('#id_almacen_entrega');
+                          almacenesSelect.empty();
+                          almacenesSelect.append('<option value="">Seleccione un almacén</option>');
+                          data.almacenes.forEach(almacen => {
+                              almacenesSelect.append(`<option value="${almacen.id}">${almacen.nombre}</option>`);
+                          });
+                      }
+                  });
+              } else {
+                  $('#id_contrato').empty().append('<option value="">Seleccione un contrato</option>');
+                  $('#id_almacen_entrega').empty().append('<option value="">Seleccione un almacén</option>');
+              }
+          });
+      });
+  
+      function attachEventListeners(row) {
+          let productoSelect = row.querySelector('.producto-select');
+          let cantidadInput = row.querySelector('.cantidad');
+          let precioInput = row.querySelector('.precio-unitario');
+          let importeInput = row.querySelector('.importe');
+          let presentacionSelect = row.querySelector('.presentacion-select');
+          let totalLitrosInput = row.querySelector('.total-litros');
+          let precioPresentacionInput = row.querySelector('.precio-presentacion');
+          let deleteButton = row.querySelector('.remove-row'); // Botón de eliminar
+  
+          // Evento al cambiar la presentación
+          presentacionSelect.addEventListener('change', function () {
+              let cantidad = parseFloat(cantidadInput.value) || 0;
+              let presentacionCantidad = parseFloat(this.options[this.selectedIndex].getAttribute('data-cantidad')) || 0;
+              let precio = parseFloat(precioInput.value) || 0;
+  
+              let totalLitros = cantidad * presentacionCantidad;
+              totalLitrosInput.value = totalLitros.toFixed(2);
+  
+              let precioPresentacion = precio * presentacionCantidad;
+              precioPresentacionInput.value = precioPresentacion.toFixed(2);
+  
+              let importe = cantidad * precioPresentacion;
+              importeInput.value = importe.toFixed(2);
+              updateTotals();
+          });
+  
+          // Evento para actualizar el precio unitario cuando se selecciona un producto
+          productoSelect.addEventListener('change', function () {
+              let selectedOption = this.options[this.selectedIndex];
+              let precio = selectedOption.getAttribute('data-precio') || 0;
+              precioInput.value = precio;
+              presentacionSelect.dispatchEvent(new Event('change'));
+              updateTotals();
+          });
+  
+          // Evento para actualizar los totales cuando cambia la cantidad
+          cantidadInput.addEventListener('input', function () {
+              presentacionSelect.dispatchEvent(new Event('change'));
+              updateTotals();
+          });
+  
+          // Evento para eliminar la fila y verificar si es la última
+          deleteButton.addEventListener('click', function () {
+              let rows = document.querySelectorAll('.detalle-row');
+              if (rows.length > 1) { // Solo eliminar si hay más de una fila
+                  row.remove();
+                  updateTotals();
+              } else {
+                  alert('No puedes eliminar todos los productos. Debe haber al menos un producto en el pedido.');
+              }
+          });
       }
-
-      // Evento para actualizar el precio y calcular el importe
-      document.querySelectorAll('.producto-select').forEach(function(select) {
-        select.addEventListener('change', function() {
-          let precio = select.options[select.selectedIndex].getAttribute('data-precio');
-          let row = select.closest('.detalle-row');
-          row.querySelector('.precio-unitario').value = precio;
-          updateTotals();
-        });
+  
+      document.querySelectorAll('.detalle-row').forEach(function (row) {
+          attachEventListeners(row);
       });
-
-      // Evento para calcular el importe al cambiar la cantidad
-      document.querySelectorAll('.cantidad').forEach(function(input) {
-        input.addEventListener('input', updateTotals);
-      });
-
-      // Evento para eliminar una fila
-      document.querySelectorAll('.remove-row').forEach(function(button) {
-        button.addEventListener('click', function() {
-          this.closest('.detalle-row').remove();
+  
+      document.getElementById('add-row').addEventListener('click', function () {
+          let newRow = document.querySelector('.detalle-row').cloneNode(true);
+  
+          newRow.querySelectorAll('input, select').forEach(function (input) {
+              input.name = input.name.replace(/-\d+-/, `-${formIdx}-`);
+              input.id = input.id.replace(/_\d+_/, `_${formIdx}_`);
+              if (input.type !== 'hidden') input.value = '';
+              if (input.tagName.toLowerCase() === 'select') input.selectedIndex = 0;
+          });
+  
+          document.querySelector('#detalle-productos-table tbody').appendChild(newRow);
+          formIdx++;
+          totalFormsInput.value = formIdx;
+          attachEventListeners(newRow);
           updateTotals();
-        });
       });
-
-      // Añadir nueva fila de productos
-      document.getElementById('add-row').addEventListener('click', function() {
-        let newRow = document.querySelector('.detalle-row').cloneNode(true);
-        newRow.querySelectorAll('input').forEach(function(input) {
-          input.value = '';
-        });
-        newRow.querySelector('.producto-select').selectedIndex = 0;
-        newRow.querySelector('.presentacion-select').selectedIndex = 0;  // Resetea la selección de presentación
-        newRow.querySelector('.importe').value = '';
-        document.getElementById('detalle-productos-table').querySelector('tbody').appendChild(newRow);
-        newRow.querySelector('.remove-row').addEventListener('click', function() {
-          newRow.remove();
-          updateTotals();
-        });
-        newRow.querySelector('.producto-select').addEventListener('change', function() {
-          let precio = newRow.querySelector('.producto-select').options[newRow.querySelector('.producto-select').selectedIndex].getAttribute('data-precio');
-          newRow.querySelector('.precio-unitario').value = precio;
-          updateTotals();
-        });
-        newRow.querySelector('.cantidad').addEventListener('input', updateTotals);
-        updateTotals();
-      });
-
-      // Inicializar cálculo de totales
+  
+      function updateTotals() {
+          let subtotal = 0;
+          document.querySelectorAll('.detalle-row').forEach(function (row) {
+              let importe = parseFloat(row.querySelector('.importe')?.value) || 0;
+              subtotal += importe;
+          });
+          let iva = subtotal * 0.16;
+          let total = subtotal + iva;
+          document.getElementById('subtotal').value = subtotal.toFixed(2);
+          document.getElementById('iva').value = iva.toFixed(2);
+          document.getElementById('total').value = total.toFixed(2);
+      }
+  
       updateTotals();
-    });
-  </script>
+  });
+
+  
+</script>
+
+    
+    
+
+    
+    
+
+
+ 
+
 {% endblock %}

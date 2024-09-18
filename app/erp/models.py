@@ -134,14 +134,25 @@ class DetallePedido(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='detalles', on_delete=models.CASCADE, to_field='numero_pedido')
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
-    presentacion = models.ForeignKey('Presentacion', on_delete=models.CASCADE)
+    presentacion = models.ForeignKey('Presentacion', on_delete=models.CASCADE, blank=False, null=False)  # Asegurarse de que no sea nulo
     atenciones = models.TextField(blank=True, null=True)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     importe = models.DecimalField(max_digits=10, decimal_places=2, blank=True)
+    total_litros = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    precio_presentacion = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.importe = self.cantidad * self.precio_unitario
-        super().save(*args, **kwargs)
+        # Verificar si la presentación está definida
+        if self.presentacion:
+            # Calcular el total de litros
+            self.total_litros = self.cantidad * self.presentacion.cantidad
+            # Calcular el precio por presentación
+            self.precio_presentacion = self.precio_unitario * self.presentacion.cantidad
+            # Calcular el importe
+            self.importe = self.cantidad * self.precio_presentacion
+        else:
+            self.total_litros = 0
+            self.precio_presentacion = 0
+            self.importe = 0
 
-    def __str__(self):
-        return f"{self.producto} - {self.cantidad} {self.presentacion}"
+        super().save(*args, **kwargs)

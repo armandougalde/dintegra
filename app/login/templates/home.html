@@ -1,0 +1,9 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <div class="container">
+      <h1>Bienvenido, {{ user.username }}!</h1>
+      <p>Estás autenticado correctamente.</p>
+      <a href="{% url 'logout' %}" class="btn btn-danger">Cerrar sesión</a>
+  </div>
+{% endblock %}

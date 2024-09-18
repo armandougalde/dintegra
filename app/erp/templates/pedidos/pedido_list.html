@@ -8,8 +8,9 @@
       <tr>
         <th>Tarjeta de Distribucion</th>
         <th>Cliente</th>
+        <th>Destino</th>
         <th>Contrato</th>
-        <th>Fecha de Pedido</th>
+        
         <th>Total</th>
         <th>Acciones</th>
       </tr>
@@ -19,13 +20,16 @@
         <tr>
           <td>{{ pedido.numero_pedido }}</td>
           <td>{{ pedido.cliente.nombre }}</td>
+          <td>{{ pedido.almacen_entrega }}</td>
           <td>{{ pedido.contrato.numero_contrato }}</td>
-          <td>{{ pedido.fecha_solicitud }}</td>
+         
           <td>{{ pedido.total }}</td>
           <td>
             <a href="{% url 'pedido-detail' pedido.pk %}" class="btn btn-sm btn-info">Ver</a>
-            <a href="{% url 'pedido-update' pedido.pk %}" class="btn btn-sm btn-warning">Editar</a>
-            <a href="{% url 'pedido-delete' pedido.pk %}" class="btn btn-sm btn-danger">Borrar</a>
+            <a href="{% url 'pedido-update' pedido.pk  %}" class="btn btn-sm btn-warning">Editar</a>
+            
+
+
           </td>
         </tr>
       {% endfor %}
