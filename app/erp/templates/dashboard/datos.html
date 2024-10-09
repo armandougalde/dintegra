@@ -1,0 +1,32 @@
+
+
+<main id="main" class="main">
+    <section class="section dashboard">
+      <div class="row">
+  
+        {% for contrato in contratos %}
+        <div class="col-xxl-4 col-md-6">
+          <div class="card info-card sales-card">
+            <div class="card-body">
+              <h5 class="card-title">Descripción del Contrato</h5>
+  
+              <div class="d-flex align-items-center">
+                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i class="bi bi-file-earmark-text"></i> <!-- Cambia el icono si es necesario -->
+                </div>
+                <div class="ps-3">
+                  <h6>{{ contrato.descripcion }}</h6>
+                  <p>Monto Mínimo: ${{ contrato.monto_minimo }}</p>
+                  <p>Monto Máximo: ${{ contrato.monto_maximo }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- End Sales Card -->
+        {% endfor %}
+  
+      </div>
+    </section>
+  </main>
+
+

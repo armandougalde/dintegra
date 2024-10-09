@@ -1,0 +1,28 @@
+{% extends "body.html" %}
+{% load form_tags %}
+
+{% block content %}
+
+
+<h2>Detalle del Contrato: {{ contrato.numero_contrato }}</h2>
+<p>{{ contrato.descripcion }}</p>
+<p>Fecha de Inicio: {{ contrato.fecha_inicio }}</p>
+<p>Fecha de Fin: {{ contrato.fecha_fin }}</p>
+<p>Monto Mínimo: {{ contrato.monto_minimo }}</p>
+<p>Monto Máximo: {{ contrato.monto_maximo }}</p>
+
+<h3>Convenios Modificatorios</h3>
+<ul>
+    {% for convenio in contrato.convenios.all %}
+        <li>{{ convenio.tipo_convenio }} - Fecha: {{ convenio.fecha_convenio }} 
+            {% if convenio.monto_nuevo %}- Nuevo Monto: {{ convenio.monto_nuevo }}{% endif %}
+            {% if convenio.nueva_fecha_fin %}- Nueva Fecha de Fin: {{ convenio.nueva_fecha_fin }}{% endif %}
+            {% if convenio.descripcion_adicional %}- Descripción: {{ convenio.descripcion_adicional }}{% endif %}
+        </li>
+    {% endfor %}
+</ul>
+<a href="{% url 'nuevo_convenio' contrato.id %}">Agregar Convenio</a>
+
+
+
+{% endblock%}

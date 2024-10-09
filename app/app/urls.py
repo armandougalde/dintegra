@@ -16,12 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+
 from homepage.views import IndexView
+from login.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', include('login.urls')),  # Rutas de autenticación
-    path('', IndexView.as_view()),  # R
-    
+    path('erp/', include('erp.urls')),
+    path('login/',include('login.urls')),
+    path('', IndexView.as_view()),
+   
 ]
 

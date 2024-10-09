@@ -1,18 +1,77 @@
-{% extends "base_generic.html" %}
+{% extends 'body.html' %}
 
 {% block content %}
-  <h2 class="mb-3">Detalle del Contrato</h2>
-  <ul class="list-group">
-    <li class="list-group-item">Número de Contrato: {{ contrato.numero_contrato }}</li>
-    <li class="list-group-item">Descripción: {{ contrato.descripcion }}</li>
-    <li class="list-group-item">Fecha de Firma: {{ contrato.fecha_firma }}</li>
-    <li class="list-group-item">Fecha de Inicio: {{ contrato.fecha_inicio }}</li>
-    <li class="list-group-item">Fecha de Fin: {{ contrato.fecha_fin }}</li>
-    <li class="list-group-item">Monto Mínimo: {{ contrato.monto_minimo }}</li>
-    <li class="list-group-item">Monto Máximo: {{ contrato.monto_maximo }}</li>
-    <li class="list-group-item">Cliente: {{ contrato.cliente.nombre }}</li>
-  </ul>
-  <a href="{% url 'contrato-update' contrato.pk %}" class="btn btn-warning mt-3">Editar</a>
-  <a href="{% url 'contrato-delete' contrato.pk %}" class="btn btn-danger mt-3">Borrar</a>
-{% endblock %}
+<div class="pagetitle">
+    <h1>Detalles del Contrato: {{ contrato.numero_contrato }}</h1>
+</div>
 
+<section class="section">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Información del Contrato</h5>
+                    <p><strong>Descripción:</strong> {{ contrato.descripcion }}</p>
+                    <p><strong>Fecha de Firma:</strong> {{ contrato.fecha_firma }}</p>
+                    <p><strong>Fecha de Inicio:</strong> {{ contrato.fecha_inicio }}</p>
+                    <p><strong>Fecha de Fin:</strong> {{ contrato.fecha_fin }}</p>
+                    <p><strong>Monto Mínimo:</strong> ${{ contrato.monto_minimo }}</p>
+                    <p><strong>Monto Máximo:</strong> ${{ contrato.monto_maximo }}</p>
+                </div>
+            </div>
+
+            <h5 class="mt-4">Clientes Asociados</h5>
+            <ul>
+                {% for cliente in clientes %}
+                    <li>{{ cliente.nombre }}</li>
+                {% empty %}
+                    <li>No hay clientes asociados a este contrato.</li>
+                {% endfor %}
+            </ul>
+
+            <a href="{% url 'contrato-update' contrato.pk %}" class="btn btn-sm btn-warning">Editar Contrato</a>
+            <a href="{% url 'contrato-list' %}" class="btn btn-sm btn-secondary">Volver a la Lista</a>
+        </div>
+
+        <!-- Sección para mostrar los convenios asociados -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Convenios Modificatorios del Contrato</h5>
+
+                    {% if convenios %}
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Tipo de Convenio</th>
+                                    <th>Fecha del Convenio</th>
+                                    <th>Detalles</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for convenio in convenios %}
+                                    <tr>
+                                        <td>{{ convenio.get_tipo_convenio_display }}</td>
+                                        <td>{{ convenio.fecha_convenio }}</td>
+                                        <td>
+                                            {% if convenio.tipo_convenio == 'MONTO' %}
+                                                <strong>Nuevo Monto Máximo:</strong> ${{ convenio.monto_nuevo }}
+                                            {% elif convenio.tipo_convenio == 'FECHA' %}
+                                                <strong>Nueva Fecha de Fin:</strong> {{ convenio.nueva_fecha_fin }}
+                                            {% elif convenio.tipo_convenio == 'TEXTO' %}
+                                                <strong>Descripción Adicional:</strong> {{ convenio.descripcion_adicional }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No hay convenios modificatorios asociados a este contrato.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

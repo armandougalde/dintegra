@@ -1,3 +1,5 @@
 {
-    "liveServer.settings.multiRootWorkspaceName": "app"
+    "liveServer.settings.multiRootWorkspaceName": "app",
+    "python.pythonPath": "${workspaceFolder}\\env\\Scripts\\python.exe"
 }
+

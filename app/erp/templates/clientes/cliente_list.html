@@ -1,29 +1,62 @@
-{% extends "base_generic.html" %}
+{% extends 'body.html' %}
 
 {% block content %}
-  <h2 class="mb-3">Lista de Clientes</h2>
-  <a href="{% url 'cliente-create' %}" class="btn btn-primary mb-3">Nuevo Cliente</a>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for cliente in clientes %}
-        <tr>
-          <td>
-            <a href="{% url 'cliente-detail' cliente.pk %}">{{ cliente.nombre }}</a>
-                        
-          </td>
-          <td>
-            <a href="{% url 'cliente-update' cliente.pk %}" class="btn btn-sm btn-warning">Editar</a>
-            <a href="{% url 'cliente-delete' cliente.pk %}" class="btn btn-sm btn-danger">Borrar</a>
-            <a href="{% url 'almacen-create' %}?cliente_id={{ cliente.pk }}" class="btn btn-sm btn-success">Agregar Almacén</a>
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
+
+  <div class="pagetitle">
+    <h1>Clientes</h1>
+    
+  </div><!-- End Page Title -->
+
+  <section class="section">
+    <div class="row">
+      <div class="col-lg-6">
+
+        <div class="card">
+          <div class="card-body">
+           
+            
+
+            <!-- Table with stripped rows -->
+            <table class="table datatable">
+              <thead>
+                <tr>
+                  <th>
+                    <b>N</b>ombre
+                  </th>
+                  <th>Acciones</th>
+              
+                </tr>
+              </thead>
+              <tbody>
+                {% for cliente in clientes %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'cliente-detail' cliente.pk %}">{{ cliente.nombre }}</a>
+                                  
+                    </td>
+                    <td>
+                      <a href="{% url 'cliente-update' cliente.pk %}" title="Editar"  class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i></a>
+                      <a href="{% url 'cliente-delete' cliente.pk %}" title="Eliminar" class="btn btn-sm btn-danger"><i class="bi bi-x-circle"></i></a>
+                      <a href="{% url 'almacen-create' %}?cliente_id={{ cliente.pk }}" title="Agregar Almacen" class="btn btn-sm btn-success"><i class="bi bi-building-add"></i></a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+
+            </table>
+            <!-- End Table with stripped rows -->
+             <div class="row col-sm-2"> <a href="{% url 'cliente-create' %}"  class="btn btn-primary mb-3" ><i class="bi bi-building-add"></i> Nuevo</a></div>
+           
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+
+
 {% endblock %}

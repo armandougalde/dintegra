@@ -1,0 +1,30 @@
+{% extends 'body.html' %}
+{% load form_tags %}
+
+{% block content %}
+<div class="pagetitle">
+    <h1>{{ action }} Almacén</h1>
+</div>
+
+<section class="section">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        {{ form.as_p }}
+
+                        <div class="d-flex justify-content-start">
+                            <button type="submit" class="btn btn-success me-2"><i class="bi bi-floppy"></i> Guardar</button>
+                            <a href="{% url 'almacen-list' %}">
+                                <button type="button" class="btn btn-warning"><i class="bi bi-backspace"></i> Atras</button>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

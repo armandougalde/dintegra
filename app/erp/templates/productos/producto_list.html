@@ -1,8 +1,13 @@
-{% extends "base_generic.html" %}
+{% extends "body.html" %}
 
 {% block content %}
-  <h2 class="mb-3">Lista de Productos</h2>
-  <a href="{% url 'producto-create' %}" class="btn btn-primary mb-3">Nuevo Producto</a>
+
+<section class="section">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Productos</h5>
   <table class="table table-striped">
     <thead>
       <tr>
@@ -16,16 +21,20 @@
       {% for producto in productos %}
         <tr>
           <td>
-            <a href="{% url 'producto-detail' producto.pk %}">{{ producto.nombre }}</a>
+            <a href="{% url 'producto-detail' producto.pk %}">{{ producto.descripcion }}</a>
           </td>
           <td>{{ producto.unidad_cotizacion }}</td>
           <td>{{ producto.precio_unitario }}</td>
           <td>
-            <a href="{% url 'producto-update' producto.pk %}" class="btn btn-sm btn-warning">Editar</a>
-            <a href="{% url 'producto-delete' producto.pk %}" class="btn btn-sm btn-danger">Borrar</a>
+            <a href="{% url 'producto-update' producto.pk %}" title="Editar" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i></a>
+            <a href="{% url 'producto-delete' producto.pk %}" title="Eliminar" class="btn btn-sm btn-danger"><i class="bi bi-x-circle"></i></a>
           </td>
         </tr>
       {% endfor %}
     </tbody>
+    
   </table>
+  <div>
+    <a href="{% url 'producto-create' %}" class="btn btn-primary mb-3"><i class="bi bi-cart-plus"></i> Nuevo</a>
+    </div>
 {% endblock %}

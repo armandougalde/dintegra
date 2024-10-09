@@ -1,38 +1,64 @@
-{% extends "base_generic.html" %}
-
+{% extends "body.html" %}
+{% load humanize %}
 {% block content %}
-  <h2 class="mb-3">Lista de Pedidos</h2>
-  <a href="{% url 'pedido-create' %}" class="btn btn-primary mb-3">Nuevo Pedido</a>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Tarjeta de Distribucion</th>
-        <th>Cliente</th>
-        <th>Destino</th>
-        <th>Contrato</th>
-        
-        <th>Total</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for pedido in pedidos %}
-        <tr>
-          <td>{{ pedido.numero_pedido }}</td>
-          <td>{{ pedido.cliente.nombre }}</td>
-          <td>{{ pedido.almacen_entrega }}</td>
-          <td>{{ pedido.contrato.numero_contrato }}</td>
-         
-          <td>{{ pedido.total }}</td>
-          <td>
-            <a href="{% url 'pedido-detail' pedido.pk %}" class="btn btn-sm btn-info">Ver</a>
-            <a href="{% url 'pedido-update' pedido.pk  %}" class="btn btn-sm btn-warning">Editar</a>
+
+<section class="section">
+  <div class="row d-flex">
+
+    {% if not hay_contratos %}
+      <div class="col-lg-12">
+        <div class="alert alert-info" role="alert">
+          No hay contratos disponibles.
+        </div>
+        <a href="{% url 'contrato-create' %}" class="btn btn-primary mb-3"><i class="bi bi-file-earmark-plus"></i> Nuevo Contrato</a>
+      </div>
+    {% else %}
+      {% for contrato_id, contrato_data in contratos.items %}
+      <div class="col-lg-6">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">{{ contrato_data.contrato.descripcion }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Contrato: {{ contrato_data.contrato.numero_contrato }}</h6>
             
-
-
-          </td>
-        </tr>
+            {% for cliente_id, cliente_data in contrato_data.clientes.items %}
+            <h6 class="card-subtitle mb-2 text-muted">Cliente: {{ cliente_data.cliente.nombre }}</h6>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col"># Tarjeta</th>
+                  <th scope="col">Destino</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pedido in cliente_data.pedidos %}
+                <tr>
+                  <td>{{ pedido.numero_pedido }}</td>
+                  <td>{{ pedido.almacen_entrega.municipio }}</td>
+                  <td>${{ pedido.total|floatformat:2|intcomma }}</td>
+                  <td>
+                    <a href="{% url 'pedido-detail' pedido.pk %}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i></a>
+                    <a href="{% url 'pedido-update' pedido.pk %}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i></a>
+                    <a href="aqui va la url del pdf" class="btn btn-sm btn-danger"><i class="bi bi-file-earmark-pdf"></i></a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4">No hay pedidos para este cliente.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% endfor %}
+            
+            <a href="{% url 'pedido-create' %}?contrato_id={{ contrato_data.contrato.id }}" class="btn btn-primary mb-3"><i class="bi bi-file-earmark-plus"></i> Agregar Pedido</a>
+          </div>
+        </div>
+      </div>
       {% endfor %}
-    </tbody>
-  </table>
+    {% endif %}
+
+  </div>
+</section>
 {% endblock %}

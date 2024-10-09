@@ -1,20 +1,44 @@
-{% extends "base_generic.html" %}
+{% extends 'body.html' %}
 
 {% block content %}
-  <h2 class="mb-3">Detalle de Cliente</h2>
-  <ul class="list-group">
-    <li class="list-group-item">Clave: {{ cliente.clave }}</li>
-    <li class="list-group-item">RFC: {{ cliente.rfc }}</li>
-    <li class="list-group-item">Nombre: {{ cliente.nombre }}</li>
-    <li class="list-group-item">Calle: {{ cliente.calle }}</li>
-    <li class="list-group-item">Número Exterior: {{ cliente.numero_exterior }}</li>
-    <li class="list-group-item">Número Interior: {{ cliente.numero_interior }}</li>
-    <li class="list-group-item">Colonia: {{ cliente.colonia }}</li>
-    <li class="list-group-item">Código Postal: {{ cliente.codigo_postal }}</li>
-    <li class="list-group-item">Localidad: {{ cliente.localidad }}</li>
-    <li class="list-group-item">Municipio: {{ cliente.municipio }}</li>
-    <li class="list-group-item">Estado: {{ cliente.estado }}</li>
-  </ul>
-  <a href="{% url 'cliente-update' cliente.pk %}" class="btn btn-warning mt-3">Editar</a>
-  <a href="{% url 'cliente-delete' cliente.pk %}" class="btn btn-danger mt-3">Borrar</a>
+<div class="pagetitle">
+    <h1>Almacenes de {{ cliente.nombre }}</h1>
+</div>
+
+<section class="section">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Almacenes</h5>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Almacén</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for almacen in almacenes %}
+                                <tr>
+                                    <td>{{ almacen.nombre }}</td>
+                                    <td>
+                                        <a href="{% url 'almacen-update' almacen.pk %}" title="Editar" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i></a>
+                                        <a href="{% url 'almacen-delete' almacen.pk %}" title="Eliminar" class="btn btn-sm btn-danger"><i class="bi bi-x-circle"></i></a>
+                                        
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="2">No hay almacenes registrados para este cliente.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <a href="{% url 'almacen-create' %}?cliente_id={{ cliente.pk }}" class="btn btn-sm btn-success"><i class="bi bi-building-add"></i> Agregar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

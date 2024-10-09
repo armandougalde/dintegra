@@ -1,29 +1,5 @@
 from django.db import models
-from djmoney.models.fields import MoneyField
-from decimal import Decimal
 
-class Estado(models.Model):
-    nombre = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.nombre
-
-class Municipio(models.Model):
-    nombre = models.CharField(max_length=255)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.nombre
-
-class Localidad(models.Model):
-    nombre = models.CharField(max_length=255)
-    municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.nombre
-
-
-from django.db import models
 
 class Cliente(models.Model):
     clave = models.CharField(max_length=20, unique=True)
@@ -33,8 +9,7 @@ class Cliente(models.Model):
     numero_exterior = models.CharField(max_length=10)
     numero_interior = models.CharField(max_length=10, blank=True, null=True)
     colonia = models.CharField(max_length=255)
-    codigo_postal = models.CharField(max_length=5)
-    localidad = models.CharField(max_length=255)
+    codigo_postal = models.CharField(max_length=5)   
     municipio = models.CharField(max_length=255)
     estado = models.CharField(max_length=255)
 
@@ -47,18 +22,51 @@ class Cliente(models.Model):
 
 
 class Contrato(models.Model):
-    numero_contrato = models.CharField(max_length=20, unique=True)
+    numero_contrato = models.CharField(max_length=18, unique=True)
     descripcion = models.CharField(max_length=100)
     fecha_firma = models.DateField()
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
-    monto_minimo = MoneyField(max_digits=14, decimal_places=2, default_currency='MXN')
-    monto_maximo = MoneyField(max_digits=14, decimal_places=2, default_currency='MXN')
+    monto_minimo = models.DecimalField(max_digits=14, decimal_places=2)
+    monto_maximo = models.DecimalField(max_digits=14, decimal_places=2)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.numero_contrato
+
+
+
+
+class Convenios(models.Model):
+    TIPO_CONVENIO_CHOICES = [
+        ('MONTO', 'Aumento de Monto Máximo'),
+        ('FECHA', 'Extensión de Fecha de Fin'),
+        ('TEXTO', 'Cambio de Texto/Descripción')
+    ]
     
+    contrato = models.ForeignKey(Contrato, on_delete=models.CASCADE, related_name='convenios')
+    num_convenio = models.CharField(max_length=15, unique=True)
+    tipo_convenio = models.CharField(max_length=10, choices=TIPO_CONVENIO_CHOICES)
+    fecha_convenio = models.DateField()
+    monto_nuevo = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    nueva_fecha_fin = models.DateField(null=True, blank=True)
+    descripcion_adicional = models.TextField(null=True, blank=True)
+    
+    def aplicar_convenio(self):
+        # Aplicar el convenio al contrato original según el tipo de convenio
+        if self.tipo_convenio == 'MONTO' and self.monto_nuevo:
+            self.contrato.monto_maximo = self.monto_nuevo
+        elif self.tipo_convenio == 'FECHA' and self.nueva_fecha_fin:
+            self.contrato.fecha_fin = self.nueva_fecha_fin
+        elif self.tipo_convenio == 'TEXTO' and self.descripcion_adicional:
+            self.contrato.descripcion += f" | Modificación: {self.descripcion_adicional}"
+        
+        # Guardar los cambios en el contrato
+        self.contrato.save()
+
+    def __str__(self):
+        return f"Convenio {self.tipo_convenio} para {self.contrato.numero_contrato}"
+
 
 
 
@@ -92,8 +100,7 @@ class Almacen(models.Model):
     numero_interior = models.CharField(max_length=10, blank=True, null=True)
     colonia = models.CharField(max_length=255)
     codigo_postal = models.CharField(max_length=5)
-    responsable = models.CharField(max_length=50)
-    localidad = models.CharField(max_length=255)
+    responsable = models.CharField(max_length=50)    
     municipio = models.CharField(max_length=255)
     estado = models.CharField(max_length=255)
 
@@ -102,7 +109,8 @@ class Almacen(models.Model):
 
 
 class Pedido(models.Model):
-    numero_pedido = models.CharField(max_length=20,primary_key=True, unique=True )  # Clave primaria como texto
+    
+    numero_pedido = models.CharField(max_length=20, null=False)  # No es clave primaria, solo un campo normal
     fecha_solicitud = models.DateField()
     cliente = models.ForeignKey('Cliente', on_delete=models.CASCADE)
     contrato = models.ForeignKey('Contrato', on_delete=models.CASCADE)
@@ -111,19 +119,11 @@ class Pedido(models.Model):
     iva = models.DecimalField(max_digits=14, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=14, decimal_places=2, default=0)
 
-    def save(self, *args, **kwargs):
-        # Calcular el subtotal sumando los importes de todos los detalles de pedido relacionados
-        self.subtotal = sum([detalle.importe for detalle in self.detalles.all()])
-        
-        # Calcular el IVA (16%)
-        self.iva = self.subtotal * Decimal('0.16')
-        
-        # Calcular el total
-        self.total = self.subtotal + self.iva
-        
-        # Guardar el Pedido
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ('numero_pedido', 'contrato')  # Mantener esta restricción
+   
 
+   
     def __str__(self):
         return f"Pedido {self.numero_pedido} - {self.cliente}"
     
@@ -131,7 +131,7 @@ class Pedido(models.Model):
 
 
 class DetallePedido(models.Model):
-    pedido = models.ForeignKey(Pedido, related_name='detalles', on_delete=models.CASCADE, to_field='numero_pedido')
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='detalles')  # Relación con Pedido
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
     presentacion = models.ForeignKey('Presentacion', on_delete=models.CASCADE, blank=False, null=False)  # Asegurarse de que no sea nulo
@@ -156,3 +156,6 @@ class DetallePedido(models.Model):
             self.importe = 0
 
         super().save(*args, **kwargs)
+    
+    def __str__(self):
+       return f"Detalle de {self.pedido.numero_pedido}"

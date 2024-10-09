@@ -1,124 +1,112 @@
-{% extends "base_generic.html" %}
-
+{% extends "body.html" %} 
+{% load humanize %}
 {% block content %}
-<div class="invoice p-3 mb-3">
 
-  <div class="row">
-  <div class="col-12">
-  <h4>
-  <i class="fas fa-globe"></i>
- 
-  </h4>
-  </div>
-  
-  </div>
-  
-  <div class="row invoice-info">
-    
-  
-  <div class="col-sm-4 invoice-col">
-  
-  <address>
-  <h4>{{ pedido.cliente.nombre }}</h4><br>
-  <h6>Direccion de Entrega:</h6>{{ pedido.almacen_entrega }}<br>
- 
-  </div>
-  
-  <div class="col-sm-4 invoice-col">
-  <b>Tarjeta de Distribucion: {{pedido.numero_pedido}} </b><br>
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Resumen Tarjeta de Distribución</h5>
 
-  <b>Contrato:</b> {{ pedido.contrato.numero_contrato }}<br>
-  <br>
-  <br>
- 
-  </div>
-  
-  </div>
-  
-  
-  <div class="row">
-  <div class="col-12 table-responsive">
-  <table class="table table-striped">
-  <thead>
-  <tr>
-    <th>Cantidad</th>
-    <th>Producto</th>
-    <th>Presentación</th>
-    <th>Atenciones</th>
-    <th>Precio Unitario</th>
-    <th>Importe</th>
-  </tr>
-  </thead>
-  <tbody>
-    {% for detalle in pedido.detalles.all %}
-    
-  <tr>
-    
-    <td>{{ detalle.cantidad }}</td>
-    <td>{{ detalle.producto.nombre }}</td>
-    <td>{{ detalle.presentacion }}</td>
-    <td>{{ detalle.atenciones }}</td>
-    <td>${{ detalle.producto.precio_unitario }}</td>
-    <td>${{ detalle.importe }}</td>
-  </tr>
-  
+        <div class="invoice p-3 mb-3">
+          <!-- Header Section -->
+          <div class="row">
+            <div class="col-12">
+              <h4>
+                <i class="fas fa-globe"></i>
+              </h4>
+            </div>
+          </div>
 
-  {% endfor %}
-  </tbody>
-  </table>
-  </div>
-  
-  </div>
-  
-  <div class="row">
-  
-  <div class="col-6">
-      
-  </div>
-  
-  <div class="col-6">
-  
-  <div class="table-responsive">
-  <table class="table">
-  <tr>
-  <th style="width:50%">Subtotal:</th>
-  <td>${{ pedido.subtotal }}</td>
-  </tr>
-  <tr>
-  <th>I.V.A: (16%)</th>
-  <td>${{ pedido.iva }}</td>
-  </tr>
-  <tr>
- 
-  </tr>
-  <tr>
-  <th>Total:</th>
-  <td><h4>${{ pedido.total }}</h4></td>
-  </tr>
-  </table>
-  </div>
-  </div>
-  
-  </div>
-  
-  
-  <div class="row no-print">
-    <div class="col-12">
-    <a href="invoice-print.html" rel="noopener" target="_blank" class="btn btn-default"><i class="fas fa-print"></i> Print</a>
-    <button type="button" class="btn btn-success float-right"><i class="far fa-credit-card"></i> Submit
-    Payment
-    </button>
-      <button type="button" class="btn btn-primary float-right" style="margin-right: 5px;">
-        <i class="fas fa-download"></i> Generate PDF
-      </button>
+          <!-- Client and Delivery Info -->
+          <div class="row invoice-info">
+            <div class="col-sm-4 invoice-col">
+              <address>
+                <h4>{{ pedido.cliente.nombre }}</h4>
+                <br />
+                <h6>Dirección de Entrega:</h6>
+                {{ pedido.almacen_entrega }}<br />
+              </address>
+            </div>
+
+            <div class="col-sm-4 invoice-col">
+              <b>Tarjeta de Distribución: {{ pedido.numero_pedido }}</b><br />
+              <b>Contrato:</b> {{ pedido.contrato.numero_contrato }}<br /><br /><br />
+            </div>
+          </div>
+
+          <!-- Table of Items -->
+          <div class="row">
+            <div class="col-12 table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Cantidad</th>
+                    <th>Presentación</th>
+                    <th>Producto</th>
+                    
+                    <th>Atenciones</th>
+                    <th>Precio Unitario</th>
+                    <th>Importe</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for detalle in pedido.detalles.all %}
+                  <tr>
+                    <td>{{ detalle.cantidad }}</td>
+                    <td>{{ detalle.presentacion }}</td>
+                    <td>{{ detalle.producto.descripcion }}</td>
+                    <td>{{ detalle.atenciones }}</td>
+                    <td>${{ detalle.precio_presentacion|floatformat:2|intcomma }}</td>
+                    <td>${{ detalle.importe|floatformat:2|intcomma }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Summary Section -->
+          <div class="row">
+            <div class="col-6"></div>
+            <div class="col-6">
+              <div class="table-responsive">
+                <table class="table">
+                  <tr>
+                    <th style="width: 50%">Subtotal:</th>
+                    <td>${{ pedido.subtotal|floatformat:2|intcomma }}</td>
+                  </tr>
+                  <tr>
+                    <th>I.V.A: (16%)</th>
+                    <td>${{ pedido.iva|floatformat:2|intcomma }}</td>
+                  </tr>
+                  <tr>
+                    <th>Total:</th>
+                    <td><h4>${{ pedido.total|floatformat:2|intcomma }}</h4></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Buttons Section -->
+          <div class="row no-print">
+            <div class="col-12">
+              
+              
+
+              <a href="{% url 'pedido-list' %}"> <button type="button" class="btn btn-success float-right">  Regresar     </button> </a>
+
+
+              <button type="button" class="btn btn-primary float-right" style="margin-right: 5px">
+    <i class="fas fa-download"></i>
+    <a href="" style="color: white; text-decoration: none;"> Generar PDF </a>
+</button>
+
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    </div>
-    </div>
-    
-    </div>
-    </div>
-    </div>
-    </section>  
-    
   </div>
+
 {% endblock %}

@@ -1,6 +1,10 @@
-{% extends "base_generic.html" %}
+{% extends "body.html" %}
 
-{% block content %}
+{% block main %}
+
+
+  <section class="section">
+
   <h2>Eliminar Pedido</h2>
   <p>¿Estás seguro de que deseas eliminar este pedido?</p>
   
@@ -9,4 +13,7 @@
     <button type="submit" class="btn btn-danger">Eliminar</button>
     <a href="{% url 'pedido-list' %}" class="btn btn-secondary">Cancelar</a>
   </form>
+</section>
+
+
 {% endblock %}

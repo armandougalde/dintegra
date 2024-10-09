@@ -1,0 +1,45 @@
+  
+          <div class="col-md-3">
+            <label>Número de Tarjeta:</label>
+            <div class="col-sm-10">
+                {{ pedido_form.numero_pedido }}
+                {% if pedido_form.numero_pedido.errors %}
+                <div class="alert alert-danger bg-danger text-light border-0 alert-dismissible fade show" role="alert">
+                        {% for error in pedido_form.numero_pedido.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+                  <div class="col-md-3">
+                    <label>Cliente</label>
+                    <div class="col-sm-10">
+                      {{ pedido_form.cliente }}
+                    </div>
+                  </div>
+        
+                  <div class="col-md-3">
+                    <label>contrato</label>
+                    <div class="col-sm-10">
+                      {{ pedido_form.contrato }}
+                    </div>
+                  </div>
+        
+                  <div class="col-md-3">
+                    <label>Fecha Solicitud</label>
+                    <div class="col-sm-6">
+                      {{ pedido_form.fecha_solicitud }}
+                    </div>
+                  </div>
+        
+                 
+                  <div class="col-md-3">
+                    <label>Entrega:</label>
+                    <div class="col-sm-10">
+                      {{ pedido_form.almacen_entrega }}
+                    </div>
+                  </div>
+        
+        

@@ -1,11 +1,93 @@
-{% extends "base_generic.html" %}
+{% extends "body.html" %}
+{% load form_tags %}
 
 {% block content %}
-  <h2 class="mb-3">{% if object %}Editar{% else %}Nuevo{% endif %} Cliente</h2>
-  <form method="post" class="needs-validation" novalidate>
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a href="{% url 'cliente-list' %}" class="btn btn-secondary">Cancelar</a>
-  </form>
+<div class="col-lg-6">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Registro de Cliente</h5>
+
+      <form method="post" class="needs-validation row g-3" novalidate>
+        {% csrf_token %}
+
+        <!-- Clave -->
+        <div class="col-md-3">
+          <label>Clave: </label>
+          {{ form.clave }}
+        </div>
+
+        <!-- RFC -->
+        <div class="col-md-3">
+          <label>RFC: </label>
+          {{ form.rfc }}
+        </div>
+
+        <!-- Nombre -->
+        <div class="col-md-6">
+          <label>Nombre: </label>
+          {{ form.nombre }}
+        </div>
+
+        <!-- Nombre -->
+        <div class="col-md-6">
+          <label>Calle: </label>
+          {{ form.calle }}
+        </div>
+
+      
+
+        <!-- Número Exterior -->
+        <div class="col-md-3">
+          <label>Número Exterior:</label>
+          {{ form.numero_exterior }}
+        </div>
+
+        <!-- Número Interior -->
+        <div class="col-md-3">
+          <label>Número Interior: </label>
+          <div class="col-sm-10">
+            {{ form.numero_interior }}
+          </div>
+        </div>
+
+        <!-- Colonia -->
+        <div class="col-md-6">
+          <label>Colonia: </label>
+          <div class="col-sm-10">
+            {{ form.colonia }}
+          </div>
+        </div>
+
+        <!-- Código Postal -->
+        <div class="col-md-3">
+          <label>Código Postal: </label>
+          {{ form.codigo_postal }}
+        </div>
+
+        <!-- Estado -->
+        <div class="col-md-3">
+          <label>Municipio: </label>
+          {{ form.municipio }}
+        </div>
+
+        <!-- Municipio -->
+        <div class="col-md-3">
+          <label>Estado: </label>
+          {{ form.estado }}
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="d-flex justify-content-start">
+          <button type="submit" class="btn btn-success me-2"><i class="bi bi-floppy"></i> Guardar</button>
+          <a href="{% url 'cliente-list' %}">
+            <button type="button" class="btn btn-warning"><i class="bi bi-backspace"></i> Atrás</button>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Script para cargar Municipios basados en el Estado -->
+
 {% endblock %}

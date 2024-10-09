@@ -1,8 +1,13 @@
-{% extends "base_generic.html" %}
+{% extends "body.html" %}
 
 {% block content %}
-  <h2 class="mb-3">Lista de Contratos</h2>
-  <a href="{% url 'contrato-create' %}" class="btn btn-primary mb-3">Nuevo Contrato</a>
+
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">Contratos</h3>
+ 
   <table class="table table-striped">
     <thead>
       <tr>
@@ -21,11 +26,21 @@
           <td>{{ contrato.descripcion }}</td>
           <td>{{ contrato.cliente.nombre }}</td>
           <td>
-            <a href="{% url 'contrato-update' contrato.pk %}" class="btn btn-sm btn-warning">Editar</a>
-            <a href="{% url 'contrato-delete' contrato.pk %}" class="btn btn-sm btn-danger">Borrar</a>
+            <a href="{% url 'contrato-update' contrato.pk %}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i></a>
+            <a href="{% url 'contrato-delete' contrato.pk %}" class="btn btn-sm btn-danger"><i class="bi bi-x-circle"></i></a>
+            <a href="{% url 'nuevo_convenio' contrato.pk %}" class="btn btn-sm btn-dark"><i class="bi bi-file-earmark-medical"></i></a>
           </td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
+  <div>
+    <a href="{% url 'contrato-create' %}" class="btn btn-primary mb-3"><i class="bi bi-file-text-fill"></i> Nuevo Contrato</a>
+    </div>
+</div>
+
+</div>
+</div>
+</div>
+
 {% endblock %}

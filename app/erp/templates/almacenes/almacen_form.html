@@ -1,11 +1,90 @@
-{% extends "base_generic.html" %}
-
+{% extends "body.html" %}
+{% load form_tags %}
 {% block content %}
-  <h2 class="mb-3">{% if object %}Editar{% else %}Nuevo{% endif %} Almacén</h2>
-  <form method="post" class="needs-validation" novalidate>
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a href="{% url 'almacen-list' %}" class="btn btn-secondary">Cancelar</a>
+
+
+ 
+
+  <div class="card col-md-6">
+    <div class="card-body">
+      <h5 class="card-title">Registrar Almacen</h5>
+        <h3>{{ form.cliente.nombre}}</h3>
+
+
+            <form method="post" class="row g-3" novalidate>
+              {% csrf_token %}
+              <div class="col-md-3">
+                <label >Clave: </label>
+                {{ form.clave }}
+              </div>
+
+              <div class="col-md-9">
+                <label>Nombre: </label>
+                  {{ form.nombre }}
+              </div>
+
+              <div class="col-md-9">
+                <label>Responsable: </label>
+                  {{ form.responsable }}
+              </div>
+              
+              
+
+              <div class="col-md-6">
+                <label>Calle: </label>
+                  {{ form.calle }}
+              </div>
+              
+            
+              <div class="col-md-3">
+                <label >Numero Exterior:</label>
+                {{ form.numero_exterior }}
+              </div>
+
+              <div class="col-md-3">
+                <label  >Numero Interior: </label>
+                <div class="col-sm-10">
+                  {{ form.numero_interior }}
+                </div>
+              </div>
+
+              <div class="col-md-9">
+                <label>Colonia: </label>
+                <div class="col-sm-10">
+                  {{ form.colonia }}
+                </div>
+              </div>
+
+
+              <div class="col-md-3">
+                <label>Codigo Postal: </label>
+                  {{ form.codigo_postal }}
+              </div>
+
+              <div class="col-md-6">
+                <label>Municipio: </label>
+                <div class="col-sm-10">
+                  {{ form.municipio }}
+                </div>
+              </div>
+
+              {% load form_tags %}
+              <div class="col-md-6">
+                <label>Estado: </label>
+                <div class="col-sm-10">
+                  {{ form.estado }}
+                </div>
+              </div>
+    
+    <div class="d-flex justify-content-start">
+      <button type="submit" class="btn btn-success me-2"><i class="bi bi-floppy"></i> Guardar</button>
+      <!-- Botón Cancelar -->
+      <a href="{% url 'cliente-list' %}">
+          <button type="button" class="btn btn-warning"><i class="bi bi-backspace"></i> Atras</button>
+      </a>
+  </div>
   </form>
+  </div>
+  </div>
+
 {% endblock %}

@@ -1,0 +1,72 @@
+{% extends "body.html" %}
+{% load humanize %}
+{% block content %}
+
+<section class="section dashboard">
+    <div class="row">
+       <!-- Sales Card -->
+       {% for item in contratos_con_totales %}
+       <div class="col-xxl-4 col-md-6">
+        <div class="card info-card sales-card">
+
+          <div class="card-body">
+            <h5 class="card-title">{{ item.contrato.descripcion }} <span></span></h5>
+
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-currency-dollar"></i>
+              </div>
+              <div class="ps-3">
+                <!-- Total de pedidos -->
+                <h4 class="card-title">Total Pedidos: ${{ item.total_pedidos|floatformat:2|intcomma }}</h6>
+                
+                <!-- Monto mínimo y máximo -->
+                <span class="text-success small pt-1 fw-bold">Min: ${{ item.contrato.monto_minimo|floatformat:2|intcomma }}</span> <br>
+                <span class="text-success small pt-1 fw-bold">Max: ${{ item.contrato.monto_maximo|floatformat:2|intcomma }}</span>
+                
+                <!-- Monto por ejercer -->
+                <p class="text-danger small pt-1 fw-bold">Monto por Ejercer: ${{ item.monto_por_ejercer|floatformat:2|intcomma }}</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- End Sales Card -->
+      {% endfor %}
+    </div>
+</section>
+
+<script>
+const socket = new WebSocket('ws://' + window.location.host + '/ws/dashboard/');
+
+socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    // Calcular el monto por ejercer
+    const montoPorEjercer = data.monto_maximo - data.total_pedidos;
+
+    // Crear una nueva tarjeta con los datos recibidos
+    const newCard = `
+        <div class="col-xxl-4 col-md-6">
+            <div class="card info-card sales-card">
+                <div class="card-body">
+                    <h5 class="card-title">${data.descripcion} <span></span></h5>
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                        <div class="ps-3">
+                            <h6>Total Pedidos: $${data.total_pedidos.toFixed(2)}</h6>
+                            <span class="text-success small pt-1 fw-bold">Min: $${data.monto_minimo.toFixed(2)}</span> 
+                            <span class="text-success small pt-1 fw-bold">Max: $${data.monto_maximo.toFixed(2)}</span>
+                            <p class="text-danger small pt-1 fw-bold">Monto por Ejercer: $${montoPorEjercer.toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.querySelector('.dashboard .row').innerHTML += newCard;
+};
+</script>
+
+{% endblock %}

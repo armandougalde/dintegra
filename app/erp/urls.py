@@ -1,5 +1,6 @@
+from django import views
 from django.urls import path, re_path
-from .views import AjaxDetallePedidoUpdateView, ClienteListView, ClienteDetailView, ClienteCreateView, ClienteUpdateView, ClienteDeleteView
+from .views import AjaxDetallePedidoUpdateView,  ClienteListView, ClienteDetailView, ClienteCreateView, ClienteUpdateView, ClienteDeleteView, ConvenioModificatorioCreateView, DashboardView
 from .views import ContratoListView, ContratoDetailView, ContratoCreateView, ContratoUpdateView, ContratoDeleteView
 from .views import ProductoListView, ProductoDetailView, ProductoCreateView, ProductoUpdateView, ProductoDeleteView
 from .views import PresentacionListView, PresentacionDetailView, PresentacionCreateView, PresentacionUpdateView, PresentacionDeleteView
@@ -12,6 +13,9 @@ from .views import PedidoCreateView,PedidoListView, PedidoDetailView, PedidoUpda
 
 
 urlpatterns = [
+
+     #path('dashboard/', DashboardView.as_view(), name='dashboard'),  # Ruta para el dashboard
+
     # URLs para Clientes
     path('clientes/', ClienteListView.as_view(), name='cliente-list'),
     path('clientes/<int:pk>/', ClienteDetailView.as_view(), name='cliente-detail'),
@@ -25,6 +29,8 @@ urlpatterns = [
     path('contratos/nuevo/', ContratoCreateView.as_view(), name='contrato-create'),
     path('contratos/<int:pk>/editar/', ContratoUpdateView.as_view(), name='contrato-update'),
     path('contratos/<int:pk>/borrar/', ContratoDeleteView.as_view(), name='contrato-delete'),
+    
+    path('contratos/<int:contrato_id>/convenio/nuevo/', ConvenioModificatorioCreateView.as_view(), name='nuevo_convenio'),
 
     # URLs para Productos
     path('productos/', ProductoListView.as_view(), name='producto-list'),
@@ -45,26 +51,22 @@ urlpatterns = [
     path('pedidos/nuevo/', PedidoCreateView.as_view(), name='pedido-create'),
     path('filtrar-contratos-almacenes/', FiltrarContratosAlmacenes.as_view(), name='filtrar-contratos-almacenes'),
    
-    path('pedidos/<path:pk>/', PedidoDetailView.as_view(), name='pedido-detail'),
-    path('pedidos/<path:pk>/eliminar/', PedidoDeleteView.as_view(), name='pedido-delete'),
+    path('pedidos/<int:pk>/', PedidoDetailView.as_view(), name='pedido-detail'),
+    path('pedidos/<int:pk>/eliminar/', PedidoDeleteView.as_view(), name='pedido-delete'),
 
-    path('pedido/<path:pk>/editar/', PedidoUpdateView.as_view(), name='pedido-update'),
-    path('pedido/<path:pk>/editar/detalles/', AjaxDetallePedidoUpdateView.as_view(), name='ajax-detalle-pedido-update'),
+    path('pedido/<int:pk>/editar/', PedidoUpdateView.as_view(), name='pedido-update'),
+    path('pedido/<int:pk>/editar/detalles/', AjaxDetallePedidoUpdateView.as_view(), name='ajax-detalle-pedido-update'),
+    
+
      
     
- 
-    
-     
-    
-  
     # URLs para Almacenes
     path('almacenes/', AlmacenListView.as_view(), name='almacen-list'),
     path('almacenes/<int:pk>/', AlmacenDetailView.as_view(), name='almacen-detail'),
     path('almacenes/nuevo/', AlmacenCreateView.as_view(), name='almacen-create'),
-    path('almacenes/<int:pk>/editar/', AlmacenUpdateView.as_view(), name='almacen-update'),
+    path('almacenes/update/<int:pk>/', AlmacenUpdateView.as_view(), name='almacen-update'),
     path('almacenes/<int:pk>/borrar/', AlmacenDeleteView.as_view(), name='almacen-delete'),
      
-
-
+ 
 ]
     

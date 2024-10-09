@@ -1,13 +1,23 @@
-{% extends "base_generic.html" %}
+{% extends "body.html" %}
 {% load form_tags %}
 
 {% block content %}
-  <h2 class="mb-3">{% if object %}Editar{% else %}Nuevo{% endif %} Producto</h2>
+<main id="main" class="main">
+  <div class="col-lg-6">  
+<div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Registro de Productos</h5>
   <form method="post" class="needs-validation" novalidate>
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a href="{% url 'producto-list' %}" class="btn btn-secondary">Cancelar</a>
+    <div class="d-flex justify-content-start">
+      <button type="submit" class="btn btn-success me-2"><i class="bi bi-floppy"></i> Guardar</button>
+      <!-- Botón Cancelar -->
+      <a href="{% url 'producto-list' %}">
+          <button type="button" class="btn btn-warning"><i class="bi bi-backspace"></i> Atras</button>
+      </a>
+  </div>
+
   </form>
 {% endblock %}
 
