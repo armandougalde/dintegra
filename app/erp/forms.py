@@ -1,9 +1,10 @@
 from django import forms
 from django.forms import inlineformset_factory, formset_factory
 from .models import Cliente, Contrato, Convenios,  Presentacion, Producto
-from .models import Pedido, DetallePedido,Almacen
+from .models import Pedido, DetallePedido,Almacen,MandoNaval
 from django.forms import inlineformset_factory
 from .models import Pedido, DetallePedido
+from dal import autocomplete
 
 
 class ClienteForm(forms.ModelForm):
@@ -41,15 +42,23 @@ class ContratoForm(forms.ModelForm):
         model = Contrato
         fields = ['numero_contrato', 'descripcion', 'fecha_firma', 'fecha_inicio', 'fecha_fin', 'monto_minimo', 'monto_maximo', 'cliente']
         widgets = {
-                    'numero_contrato':forms.TextInput(attrs={'type': 'text','class': 'form-control'}),
-                    'descripcion':forms.TextInput(attrs={'type': 'text','class': 'form-control'}),
-                    'fecha_firma': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-                    'cliente':forms.Select(attrs={'class': 'form-control'}),
-                    'fecha_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-                    'fecha_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),                     
-                    'monto_minimo': forms.TextInput(attrs={'class': 'form-control','choices':'settings.CURRENCY_CHOICES'}),
-                    'monto_maximo': forms.TextInput(attrs={'class': 'form-control','choices':'settings.CURRENCY_CHOICES'}), 
-                }
+            'fecha_firma': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'numero_contrato': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
+            'monto_minimo': forms.TextInput(attrs={'class': 'form-control '}),
+            'monto_maximo': forms.TextInput(attrs={'class': 'form-control'}),
+            'cliente': forms.Select(attrs={'class': 'form-control'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Convertir las fechas al formato YYYY-MM-DD para que el campo HTML las acepte correctamente
+        if self.instance and self.instance.pk:
+            self.fields['fecha_firma'].initial = self.instance.fecha_firma.strftime('%Y-%m-%d') if self.instance.fecha_firma else ''
+            self.fields['fecha_inicio'].initial = self.instance.fecha_inicio.strftime('%Y-%m-%d') if self.instance.fecha_inicio else ''
+            self.fields['fecha_fin'].initial = self.instance.fecha_fin.strftime('%Y-%m-%d') if self.instance.fecha_fin else ''
   
 class ConvenioModificatorioForm(forms.ModelForm):
     class Meta:
@@ -107,12 +116,14 @@ class PresentacionForm(forms.ModelForm):
 class AlmacenForm(forms.ModelForm):
     class Meta:
         model = Almacen
-        fields = ['clave', 'nombre', 'calle', 'numero_exterior','responsable', 'numero_interior', 'colonia', 'codigo_postal', 'municipio', 'estado']
+        fields = ['clave', 'nombre','mando','calle', 'numero_exterior','responsable', 'numero_interior', 'colonia', 'codigo_postal', 'municipio', 'estado']
         widgets = {
             
             'clave':forms.TextInput(attrs={'class':'form-control col-md-3'}),            
             
-            'nombre':forms.TextInput(attrs={'class':'form-control col-md-12'}),
+            'nombre':forms.TextInput(attrs={'class':'form-control col-md-6'}),
+            
+            'mando': forms.Select(attrs={'class': 'form-control col-md-6 select2'}),
             
             'responsable':forms.TextInput(attrs={'class':'form-control col-md-12'}),
             
@@ -137,6 +148,10 @@ class AlmacenForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Si necesitas inicializar algo relacionado con el cliente, asegúrate de que esté en kwargs
+
+
+
+
 class PedidoForm(forms.ModelForm):
     numero_contrato = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}))
     class Meta:
@@ -204,4 +219,5 @@ DetallePedidoFormSet2 = inlineformset_factory(
     can_delete=True,
 )
 
-
+class ExcelUploadForm(forms.Form):
+    excel_file = forms.FileField(label="Seleccionar archivo Excel")

@@ -1,4 +1,5 @@
 from django.db import models
+from dal import autocomplete
 
 
 class Cliente(models.Model):
@@ -90,6 +91,19 @@ class Presentacion(models.Model):
     def __str__(self):
         return self.nombre
 
+class MandoNaval(models.Model):
+    clave = models.CharField(max_length=20)
+    descripcion = models.TextField(blank=True, null=True,max_length=100)
+    
+    
+
+    def __str__(self):
+        return self.descripcion
+
+    class Meta:
+        verbose_name = 'Mando Naval'
+        verbose_name_plural = 'Mandos Navales'
+
 
 class Almacen(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='almacenes')
@@ -103,6 +117,7 @@ class Almacen(models.Model):
     responsable = models.CharField(max_length=50)    
     municipio = models.CharField(max_length=255)
     estado = models.CharField(max_length=255)
+    mando = models.ForeignKey('MandoNaval', on_delete=models.CASCADE,default=1, related_name='almacenes')
 
     def __str__(self):
         return f"{self.nombre} ({self.clave})"
@@ -156,6 +171,6 @@ class DetallePedido(models.Model):
             self.importe = 0
 
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
-       return f"Detalle de {self.pedido.numero_pedido}"
+        return f"Detalle de {self.pedido.numero_pedido}"

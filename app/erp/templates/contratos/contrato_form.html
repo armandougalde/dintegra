@@ -1,5 +1,6 @@
 {% extends "body.html" %}
 {% load form_tags %}
+{% load humanize %}
 
 {% block content %}
 
@@ -14,7 +15,7 @@
 
         <div class="col-md-3">
           <label >Número de Contrato:</label>
-          {{ form.numero_contrato|add_class:"form-control" }}
+          {{ form.numero_contrato|add_class:"form-control " }}
         </div>
 
         <div class="col-md-9">
@@ -25,7 +26,7 @@
         <div class="col-md-3">
           <label  >Fecha Firma</label>
           <div class="col-sm-10">
-            {{ form.fecha_firma }}
+            {{ form.fecha_firma|add_class:"form-control"}}
           </div>
         </div>
         
@@ -38,21 +39,21 @@
         <div class="col-md-6">
           <label  >Fecha Inicio</label>
           <div class="col-sm-10">
-            {{ form.fecha_inicio }}
+            {{ form.fecha_inicio|add_class:"form-control datepicker" }}
           </div>
         </div>
 
          <div class="col-md-6">
           <label  >Fecha Fin</label>
           <div class="col-sm-10">
-            {{ form.fecha_fin }}
+            {{ form.fecha_fin|add_class:"form-control datepicker" }}
           </div>
         </div>
 
         <div class="col-md-6">
         <div class="input-group mb-3">
           <span class="input-group-text">$</span>
-          {{ form.monto_minimo }}
+          {{ form.monto_minimo|add_class:"form-control" }}
           <span class="input-group-text">.00</span>
         </div>
       </div>
@@ -62,7 +63,7 @@
         <div class="col-md-6">
         <div class="input-group mb-3">
           <span class="input-group-text">$</span>
-          {{ form.monto_maximo }}
+          {{ form.monto_maximo|add_class:"form-control" }}
           <span class="input-group-text">.00</span>
         </div>
       </div>
@@ -83,6 +84,18 @@
     </div>
     </div>
   </div>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',  // Asegúrate de usar el mismo formato de la base de datos
+            autoclose: true
+        });
+    });
+</script>
+
+
+
 
 {% endblock %}
 

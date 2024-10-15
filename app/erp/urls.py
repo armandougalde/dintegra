@@ -1,6 +1,8 @@
 from django import views
 from django.urls import path, re_path
-from .views import AjaxDetallePedidoUpdateView,  ClienteListView, ClienteDetailView, ClienteCreateView, ClienteUpdateView, ClienteDeleteView, ConvenioModificatorioCreateView, DashboardView
+from .views import AjaxDetallePedidoUpdateView, ClienteListView, ClienteDetailView, ClienteCreateView, \
+    ClienteUpdateView, ClienteDeleteView, ConvenioModificatorioCreateView, DashboardView, cargar_mandos_preliminar, \
+    confirmar_carga_mandos, PedidosPdf, PedidoPDFView
 from .views import ContratoListView, ContratoDetailView, ContratoCreateView, ContratoUpdateView, ContratoDeleteView
 from .views import ProductoListView, ProductoDetailView, ProductoCreateView, ProductoUpdateView, ProductoDeleteView
 from .views import PresentacionListView, PresentacionDetailView, PresentacionCreateView, PresentacionUpdateView, PresentacionDeleteView
@@ -56,7 +58,7 @@ urlpatterns = [
 
     path('pedido/<int:pk>/editar/', PedidoUpdateView.as_view(), name='pedido-update'),
     path('pedido/<int:pk>/editar/detalles/', AjaxDetallePedidoUpdateView.as_view(), name='ajax-detalle-pedido-update'),
-    
+    path('pedido/<int:pk>/pdf/', PedidoPDFView.as_view(), name='pedido-pdf'),
 
      
     
@@ -66,7 +68,10 @@ urlpatterns = [
     path('almacenes/nuevo/', AlmacenCreateView.as_view(), name='almacen-create'),
     path('almacenes/update/<int:pk>/', AlmacenUpdateView.as_view(), name='almacen-update'),
     path('almacenes/<int:pk>/borrar/', AlmacenDeleteView.as_view(), name='almacen-delete'),
-     
+   
+    path('cargar-mandos/', cargar_mandos_preliminar, name='cargar-mandos-preliminar'),
+    path('confirmar-carga-mandos/', confirmar_carga_mandos, name='confirmar-carga-mandos'),
+   
  
 ]
     

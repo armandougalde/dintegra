@@ -20,7 +20,16 @@
 
 {% include 'footer.html' %}
 
-
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Aplica Select2 a todos los campos con clase select2
+        $('.select2').select2({
+            placeholder: "Selecciona un mando",
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
 </body>
 
 {% endblock body %}

@@ -1,90 +1,119 @@
 {% extends "body.html" %}
-{% load form_tags %}
+{% load static %}
+{% load widget_tweaks %}
+
 {% block content %}
-
-
- 
-
-  <div class="card col-md-6">
+<div class="col-lg-6">
+  <div class="card">
     <div class="card-body">
-      <h5 class="card-title">Registrar Almacen</h5>
-        <h3>{{ form.cliente.nombre}}</h3>
-
-
-            <form method="post" class="row g-3" novalidate>
-              {% csrf_token %}
-              <div class="col-md-3">
-                <label >Clave: </label>
-                {{ form.clave }}
-              </div>
-
-              <div class="col-md-9">
-                <label>Nombre: </label>
-                  {{ form.nombre }}
-              </div>
-
-              <div class="col-md-9">
-                <label>Responsable: </label>
-                  {{ form.responsable }}
-              </div>
-              
-              
-
-              <div class="col-md-6">
-                <label>Calle: </label>
-                  {{ form.calle }}
-              </div>
-              
+      
+    <h1 class="mt-4">Registrar Almacén</h1>
+    <form method="post" class="row g-3" novalidate>
+        {% csrf_token %}
+        
+        <div class="col-md-3">
+            <label>Clave: </label>
+            {{ form.clave }}
+        </div>
+        
+        <div class="col-md-9">
+            <label>Nombre: </label>
+            {{ form.nombre }}
+        </div>
+        
+        <div class="col-md-9">
+            <label>Mando Naval: </label>
             
-              <div class="col-md-3">
-                <label >Numero Exterior:</label>
-                {{ form.numero_exterior }}
-              </div>
+            {{ form.mando|add_class:'form-control'  }}  <!-- Este campo es el que tendrá Select2 aplicado -->
+        </div>
 
-              <div class="col-md-3">
-                <label  >Numero Interior: </label>
-                <div class="col-sm-10">
-                  {{ form.numero_interior }}
-                </div>
-              </div>
+        <div class="col-md-9">
+            <label>Responsable: </label>
+            {{ form.responsable }}
+        </div>
+        
+        <!-- Aquí se agregan los demás campos del formulario -->
+        <div class="col-md-6">
+            <label>Calle: </label>
+            {{ form.calle }}
+        </div>
+        
+        <div class="col-md-3">
+            <label>Numero Exterior:</label>
+            {{ form.numero_exterior }}
+        </div>
+        
+        <div class="col-md-3">
+            <label>Numero Interior: </label>
+            {{ form.numero_interior }}
+        </div>
+        
+        <div class="col-md-9">
+            <label>Colonia: </label>
+            {{ form.colonia }}
+        </div>
+        
+        <div class="col-md-3">
+            <label>Codigo Postal: </label>
+            {{ form.codigo_postal }}
+        </div>
+        
+        <div class="col-md-6">
+            <label>Municipio: </label>
+            {{ form.municipio }}
+        </div>
 
-              <div class="col-md-9">
-                <label>Colonia: </label>
-                <div class="col-sm-10">
-                  {{ form.colonia }}
-                </div>
-              </div>
+        <div class="col-md-6">
+            <label>Estado: </label>
+            {{ form.estado }}
+        </div>
+
+        <div class="d-flex justify-content-start">
+            <button type="submit" class="btn btn-success me-2">Guardar</button>
+            <a href="{% url 'cliente-list' %}">
+                <button type="button" class="btn btn-warning">Atrás</button>
+            </a>
+        </div>
+    </form>
 
 
-              <div class="col-md-3">
-                <label>Codigo Postal: </label>
-                  {{ form.codigo_postal }}
-              </div>
 
-              <div class="col-md-6">
-                <label>Municipio: </label>
-                <div class="col-sm-10">
-                  {{ form.municipio }}
-                </div>
-              </div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Inicializa Select2 en el campo Mando
+        $('.select2').select2({
+            placeholder: "Selecciona un mando",
+            allowClear: true,
+            width: '100%'  // Ajusta el ancho para que coincida con el campo de entrada
+        });
+    });
+</script>
 
-              {% load form_tags %}
-              <div class="col-md-6">
-                <label>Estado: </label>
-                <div class="col-sm-10">
-                  {{ form.estado }}
-                </div>
-              </div>
-    
-    <div class="d-flex justify-content-start">
-      <button type="submit" class="btn btn-success me-2"><i class="bi bi-floppy"></i> Guardar</button>
-      <!-- Botón Cancelar -->
-      <a href="{% url 'cliente-list' %}">
-          <button type="button" class="btn btn-warning"><i class="bi bi-backspace"></i> Atras</button>
-      </a>
-  </div>
-  </form>
-  </div>
-  </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Revisa si hay mensajes de Django
+      {% if messages %}
+          {% for message in messages %}
+              Swal.fire({
+                  title: "{% if message.tags == 'success' %}¡Éxito!{% elif message.tags == 'error' %}¡Error!{% else %}Información{% endif %}",
+                  text: "{{ message }}",
+                  icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}",
+                  confirmButtonText: 'Aceptar',
+                  timer: 5000,  // Opcional: cerrar automáticamente después de 5 segundos
+                  timerProgressBar: true,
+                  showClass: {
+                      popup: 'animate__animated animate__fadeInDown'
+                  },
+                  hideClass: {
+                      popup: 'animate__animated animate__fadeOutUp'
+                  }
+              });
+          {% endfor %}
+      {% endif %}
+  });
+</script>
 
+</div>
+</div>
+</div>
 {% endblock %}

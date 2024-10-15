@@ -40,6 +40,7 @@
               <table class="table table-striped">
                 <thead>
                   <tr>
+                    <th>Núm</th>
                     <th>Cantidad</th>
                     <th>Presentación</th>
                     <th>Producto</th>
@@ -52,6 +53,7 @@
                 <tbody>
                   {% for detalle in pedido.detalles.all %}
                   <tr>
+                    <td>{{ forloop.counter }}</td>
                     <td>{{ detalle.cantidad }}</td>
                     <td>{{ detalle.presentacion }}</td>
                     <td>{{ detalle.producto.descripcion }}</td>
@@ -99,7 +101,7 @@
 
               <button type="button" class="btn btn-primary float-right" style="margin-right: 5px">
     <i class="fas fa-download"></i>
-    <a href="" style="color: white; text-decoration: none;"> Generar PDF </a>
+    <a href="{% url 'pedido-pdf' pedido.pk %}" style="color: white; text-decoration: none;"> Generar PDF </a>
 </button>
 
             </div>

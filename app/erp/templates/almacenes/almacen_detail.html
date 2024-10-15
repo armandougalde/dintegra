@@ -1,9 +1,10 @@
-{% extends "base_generic.html" %}
+{% extends "body.html" %}
 
 {% block content %}
   <h2 class="mb-3">Detalle del Almacén</h2>
   <p>Clave: {{ almacen.clave }}</p>
   <p>Nombre: {{ almacen.nombre }}</p>
+  <p>Región: {{ almacen.mando.nombre }}</p>
   <p>Cliente: {{ almacen.cliente.nombre }}</p>
   <p>Calle: {{ almacen.calle }}</p>
   <p>Número Exterior: {{ almacen.numero_exterior }}</p>

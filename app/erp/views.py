@@ -1,19 +1,32 @@
-
+import http
+from lib2to3.fixes.fix_input import context
+from tempfile import template
 
 from django import forms
 from django.shortcuts import render,redirect
 from django.shortcuts import get_object_or_404
 from django.forms import formset_factory, inlineformset_factory
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
+from django.template import TemplateDoesNotExist
 from django.urls import  reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView,TemplateView
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from dal import autocomplete
+from django.core.paginator import Paginator
+
+import os
+from django.conf import settings
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from django.contrib.staticfiles import finders
+
 
 from app import settings
-from .models import Cliente,Contrato,Convenios, DetallePedido,  Producto,Presentacion,Pedido,Almacen,Producto, Presentacion
-from .forms import ClienteForm, ContratoForm, ConvenioModificatorioForm, DetallePedidoForm, DetallePedidoFormSet2, PedidoForm, AlmacenForm,DetallePedidoFormSet,PresentacionForm, ProductoForm
+from .models import Cliente,Contrato,Convenios, DetallePedido, MandoNaval,  Producto,Presentacion,Pedido,Almacen,Producto, Presentacion
+from .forms import ClienteForm, ContratoForm, ConvenioModificatorioForm, DetallePedidoForm, DetallePedidoFormSet2, ExcelUploadForm, PedidoForm, AlmacenForm,DetallePedidoFormSet,PresentacionForm, ProductoForm
 from decimal import Decimal
 from django.http import JsonResponse
 from django.contrib import messages
@@ -74,8 +87,6 @@ class ClienteListView(ListView):
         context = super().get_context_data(**kwargs)
         print(context)  # Añade esta línea para depurar
         return context
-
-
 
 class ClienteDetailView(DetailView):
     model = Cliente
@@ -146,6 +157,26 @@ class ContratoUpdateView(UpdateView):
     form_class = ContratoForm
     template_name = 'contratos/contrato_form.html'
     success_url = reverse_lazy('contrato-list')
+
+    def get_initial(self):
+        initial = super().get_initial()
+        # Obtener el contrato actual y asegurar que las fechas estén en formato correcto
+        contrato = self.object
+        
+        # Formatear los montos con separadores de comas y dos decimales
+        initial['monto_minimo'] = "{:,.2f}".format(contrato.monto_minimo)
+        initial['monto_maximo'] = "{:,.2f}".format(contrato.monto_maximo)
+
+        if contrato.fecha_firma:
+            initial['fecha_firma'] = contrato.fecha_firma.strftime('%Y-%m-%d')
+        if contrato.fecha_inicio:
+            initial['fecha_inicio'] = contrato.fecha_inicio.strftime('%Y-%m-%d')
+        if contrato.fecha_fin:
+            initial['fecha_fin'] = contrato.fecha_fin.strftime('%Y-%m-%d')
+
+        return initial
+    
+ 
 
 class ContratoDeleteView(DeleteView):
     model = Contrato
@@ -272,9 +303,9 @@ class AlmacenCreateView(CreateView):
     model = Almacen
     form_class = AlmacenForm
     template_name = 'almacenes/almacen_form.html'
-    
+
     def get_success_url(self):
-        # Redirecciona a la lista de clientes después de crear el almacén
+        # Redirige a la lista de clientes después de crear el almacén
         return reverse_lazy('cliente-list')
 
     def form_valid(self, form):
@@ -284,9 +315,19 @@ class AlmacenCreateView(CreateView):
             # Asignar el cliente al formulario
             form.instance.cliente = Cliente.objects.get(pk=cliente_id)
         else:
-            # Si no se encuentra el cliente_id, devolver un error de formulario inválido
+            messages.error(self.request, "Cliente no encontrado. No se puede guardar el almacén.")
             return self.form_invalid(form)
-        return super().form_valid(form)
+
+        # Mostrar mensaje de éxito
+        messages.success(self.request, "Almacén guardado correctamente.")
+        response = super().form_valid(form)
+
+        # Redireccionar y mantener los mensajes usando HttpResponseRedirect
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Error al guardar el almacén. Revisa los campos e intenta nuevamente.")
+        return super().form_invalid(form)
 
 class AlmacenUpdateView(UpdateView):
     model = Almacen
@@ -439,6 +480,17 @@ class PedidoUpdateView(UpdateView):
     form_class = PedidoForm
     template_name = 'pedidos/pedido_update.html'
     success_url = reverse_lazy('pedido-list')
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        # Obtener el contrato actual y asegurar que las fechas estén en formato correcto
+        pedido = self.object
+
+        if pedido.fecha_solicitud:
+            initial['fecha_solicitud'] = pedido.fecha_solicitud.strftime('%Y-%m-%d')
+        
+
+        return initial
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
@@ -492,7 +544,7 @@ from django.views.generic import ListView
 from django.db.models import Prefetch
 from .models import Pedido, Contrato, Cliente  # Asegúrate de tener los modelos importados
 
-class PedidoListView(ListView):
+class PedidoListView2(ListView):
     model = Pedido
     template_name = 'pedidos/pedido_list.html'
     context_object_name = 'pedidos'
@@ -537,8 +589,49 @@ class PedidoListView(ListView):
 
         return context
 
-    
-    
+
+class PedidoListView(ListView):
+    model = Pedido
+    template_name = 'pedidos/pedido_list.html'
+    context_object_name = 'pedidos'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener todos los contratos
+        contratos = Contrato.objects.all()
+        
+        # Preparar la estructura para agrupar por contrato y luego por cliente
+        contratos_con_clientes = {}
+        for contrato in contratos:
+            # Obtener todos los clientes relacionados con el contrato
+            clientes = Cliente.objects.filter(pedido__contrato=contrato).distinct()
+
+            # Crear la estructura para cada contrato, con clientes y pedidos (inicialmente vacío)
+            contratos_con_clientes[contrato.id] = {
+                'contrato': contrato,
+                'clientes': {
+                    cliente.id: {'cliente': cliente, 'pedidos': []} for cliente in clientes
+                }
+            }
+
+            # Obtener todos los pedidos de este contrato, ordenados por numero_pedido
+            pedidos = Pedido.objects.filter(contrato=contrato).order_by('-numero_pedido')
+
+            # Paginación específica para este contrato
+            paginator = Paginator(pedidos, 10)  # Mostramos 10 pedidos por página
+            page_number = self.request.GET.get(f'page_{contrato.id}', 1)
+            page_obj = paginator.get_page(page_number)
+
+            # Añadir la paginación al contexto del contrato
+            contratos_con_clientes[contrato.id]['page_obj'] = page_obj
+
+        context['contratos'] = contratos_con_clientes  # Pasar los contratos con clientes al contexto
+        context['hay_contratos'] = bool(contratos)  # Variable para indicar si hay contratos disponibles
+
+        return context
+
+     
 class PedidoDetailView(DetailView):
     model = Pedido
     template_name = 'pedidos/pedido_detail.html'  # Asegúrate de que esta plantilla exista
@@ -604,43 +697,120 @@ import pandas as pd # type: ignore
 
 
 
-from docxtpl import DocxTemplate
-from django.http import HttpResponse
-import os
-from docx2pdf import convert
+
+def cargar_mandos_preliminar(request):
+    print("Solicitud recibida en cargar_mandos_preliminar")
+    if request.method == "POST":
+        form = ExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            print("Formulario válido, procesando archivo...")
+            excel_file = request.FILES.get("excel_file")
+            if not excel_file:
+                messages.error(request, "No se seleccionó ningún archivo. Intenta de nuevo.")
+                print("No se seleccionó ningún archivo.")
+                return redirect("cargar-mandos-preliminar")
+
+            try:
+                # Leer el archivo Excel usando pandas sin encabezado
+                print("Leyendo el archivo Excel...")
+                df = pd.read_excel(excel_file, header=None, engine='openpyxl')
+                print("Archivo leído correctamente.")
+
+                if df.empty:
+                    messages.error(request, "El archivo Excel está vacío. Verifica el contenido.")
+                    print("El archivo Excel está vacío.")
+                    return redirect("cargar-mandos-preliminar")
+
+                # Asignar nombres personalizados a las columnas
+                print("Procesando y asignando nombres a las columnas...")
+                df.columns = ['clave', 'descripcion']
+                df = df.dropna(subset=['clave', 'descripcion'])  # Eliminar filas vacías
+
+                # Guardar el DataFrame en la sesión para su confirmación posterior
+                request.session['preliminar_data'] = df.to_dict(orient='records')
+                print("Datos guardados en la sesión:", request.session['preliminar_data'])
+
+                # Intentar renderizar la plantilla preliminar_mandos.html
+                print("Intentando renderizar la plantilla preliminar_mandos.html...")
+                try:
+                    return render(request, "preliminar_mandos.html", {"data": df.to_dict(orient='records')})
+                except TemplateDoesNotExist as e:
+                    print(f"Plantilla no encontrada: {e}")
+                    return HttpResponse(f"Plantilla no encontrada: {e}")
+
+            except pd.errors.ParserError:
+                messages.error(request, "El archivo no se pudo procesar. Verifica el formato del archivo Excel.")
+                print("Error de formato en el archivo.")
+            except Exception as e:
+                messages.error(request, f"Error en la carga del archivo: {str(e)}")
+                print(f"Error en la carga del archivo: {str(e)}")
+                return redirect("cargar-mandos-preliminar")
+    else:
+        print("Método de solicitud no es POST.")
+        form = ExcelUploadForm()
+
+    return render(request, "carga_datos.html", {"form": form})
 
 
-def generar_pedido_pdf(request, pk):
-    # Obtener el pedido del modelo
-    pedido = Pedido.objects.get(pk=pk)
+def confirmar_carga_mandos(request):
+    print("Solicitud recibida en confirmar_carga_mandos")
+    preliminar_data = request.session.get('preliminar_data', [])
 
-    # Cargar la plantilla de Word
-    template_path = os.path.join('templates', 'pedidos', 'pedido_template.docx')
-    doc = DocxTemplate(template_path)
+    if not preliminar_data:
+        print("No se encontraron datos en la sesión. Redirigiendo a cargar-mandos-preliminar.")
+        messages.error(request, "No se encontraron datos para cargar. Por favor, sube el archivo de nuevo.")
+        return redirect("cargar-mandos-preliminar")
 
-    # Crear el contexto con los datos del pedido
-    context = {
-        'pedido': pedido,
-    }
+    # Confirmar y guardar los datos en la base de datos
+    try:
+        for row in preliminar_data:
+            MandoNaval.objects.update_or_create(
+                clave=row['clave'],
+                defaults={"descripcion": row['descripcion']}
+            )
+        messages.success(request, "Los datos se cargaron correctamente en la base de datos.")
+        print("Datos guardados exitosamente.")
+    except Exception as e:
+        messages.error(request, f"Error al guardar los datos: {str(e)}")
 
-    # Rellenar la plantilla con los datos
-    doc.render(context)
+    # Limpiar los datos de la sesión
+    request.session.pop('preliminar_data', None)
 
-    # Guardar el archivo temporalmente
-    output_path = f"pedido_{pedido.numero_pedido}.docx"
-    doc.save(output_path)
+    return redirect("cargar-mandos-preliminar")
 
-    # Convertir a PDF utilizando python-docx2pdf
-    convert(output_path)  # Esto generará un archivo .pdf con el mismo nombre que el .docx
 
-    # Leer el archivo PDF generado y devolverlo como respuesta HTTP
-    pdf_path = output_path.replace('.docx', '.pdf')
-    with open(pdf_path, 'rb') as pdf_file:
-        response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="pedido_{pedido.numero_pedido}.pdf"'
+class PedidosPdf(View):
+    def get(self, request, pk, *args, **kwargs):
+        # Obtener el pedido correspondiente por su pk
+        try:
+            pedido = Pedido.objects.get(pk=pk)
+            detalles = pedido.detalles.all()  # Usar 'detalles' debido al related_name en DetallePedido
 
-    # Eliminar archivos temporales
-    os.remove(output_path)
-    os.remove(pdf_path)
+            # Imprimir los detalles en la consola para verificar que se están obteniendo correctamente
+            print("Detalles del Pedido:", detalles)  # Esto mostrará los detalles en la consola
+        except Pedido.DoesNotExist:
+            return HttpResponse('El pedido no existe')
 
-    return response
+
+
+        # Preparar el contexto con el pedido y sus detalles
+        context = {
+            'pedido': pedido,
+            'detalles': detalles  # Pasar los detalles al contexto
+        }
+
+        # Renderizar la plantilla HTML a un string
+        html = render_to_string('pedidos/pedido_pdf.html', context)
+
+        # Crear una respuesta PDF
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{pedido.numero_pedido}.pdf"'
+
+        # Crear el PDF con pisa
+        pisa_status = pisa.CreatePDF(html, dest=response)
+
+        # Si hay errores, mostrar mensaje de error
+        if pisa_status.err:
+            return HttpResponse('Hubo un error al generar el PDF')
+
+        return response
