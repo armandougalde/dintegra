@@ -1,0 +1,118 @@
+
+{% load humanize %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Pedido{{ pedido.numero_pedido }}</title>
+
+
+
+
+
+
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+            font-size: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .logo {
+            float: left;  /* Posicionar el logo a la izquierda */
+            width: 100px;  /* Ajusta el tamaño del logo */
+            margin-right: 10px;
+        }
+        .header {
+            text-align: right;
+            margin-top: 5px;
+            margin-bottom: 30px;
+        }
+        .header-info {
+            text-align: right;
+            margin-left: 100px;  /* Ajusta para dejar espacio para el logo */
+        }
+
+         .header-title {
+            text-align: center;
+              /* Ajusta para dejar espacio para el logo */
+             font-size: 25px;
+        }
+       .footer{
+            text-align: left;
+            margin-top: 10px;
+            margin-bottom: 10px;
+       }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <img src="{% static 'img/logo.png' %}" class="logo" alt="">
+        <div class="header-title">
+            <h3>REMISIÓN</h3>
+        </div>
+
+
+
+        <div class="header-info">
+        <h2># TARJETA: {{ pedido.numero_pedido }}</h2>
+        <p>CLIENTE: {{ pedido.cliente.nombre }}</p>
+        <p>CONTRATO: {{ pedido.contrato.numero_contrato }}</p>
+        <p>ENTREGA MANDO NAVAL: {{ pedido.almacen_entrega.mando.clave }}-{{ pedido.almacen_entrega.mando }}</p>
+    </div>
+    </div>
+
+
+    <table>
+        <thead>
+            <tr>
+                <th>NÚM</th>
+                <th>CANTIDAD</th>
+                <th>PRESENTACIÓN</th>
+                <th>PRODUCTO SOLICITADO</th>
+                <th>ATENCIONES</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in pedido.detalles.all %}
+            <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ detalle.cantidad }}</td>
+                    <td>{{ detalle.presentacion }}</td>
+                    <td>{{ detalle.producto.descripcion }}</td>
+                    <td>{{ detalle.atenciones }}</td>
+
+                  </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+     <br>
+     <br>
+    <h2>Recibe</h2><BR>
+
+
+    <div class="footer">
+        <p>NOMBRE:__________________________________________________</p><br>
+        <p>FIRMA:___________________________________________________</p><br>
+        <p>FECHA:___________________________________________________</p><br>
+        <p>  SELLO: </p>
+    </div>
+</body>
+</html>

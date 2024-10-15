@@ -1,0 +1,100 @@
+{% extends "body.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-4">Cargar Datos de Mandos Navales desde Excel</h1>
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="archivo_excel">Selecciona un archivo Excel (.xlsx):</label>
+            <input type="file" name="excel_file" id="archivo_excel" accept=".xlsx" class="form-control" required>
+        </div>
+        <button type="button" id="cargarBtn" class="btn btn-primary" onclick="iniciarCarga()">Cargar Datos</button>
+        <button type="button" id="cancelarBtn" class="btn btn-danger ml-2" style="display: none;" onclick="cancelarCarga()">Cancelar Carga</button>
+    </form>
+
+    <!-- Barra de progreso -->
+    <div id="spinner" class="progress mt-3" style="display: none;">
+        <div id="progressBar" class="progress-bar progress-bar-striped bg-warning progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            0%
+        </div>
+    </div>
+
+    <!-- Mensajes de éxito o error -->
+    <div id="mensajeExito" class="alert alert-success mt-3" style="display: none;">
+        Datos cargados exitosamente.
+    </div>
+    <div id="mensajeError" class="alert alert-danger mt-3" style="display: none;">
+        Error al cargar el archivo.
+    </div>
+</div>
+
+
+<script>
+    let abortController;
+
+    async function iniciarCarga() {
+        const archivo = document.getElementById('archivo_excel').files[0];
+        if (!archivo) {
+            alert('Por favor, selecciona un archivo Excel antes de cargar.');
+            return;
+        }
+
+        console.log("Archivo seleccionado: ", archivo.name);
+
+        // Mostrar la barra de progreso y botón de cancelar
+        document.getElementById('spinner').style.display = 'block';
+        document.getElementById('cancelarBtn').style.display = 'inline';
+        document.getElementById('cargarBtn').disabled = true;
+
+        const formData = new FormData();
+        formData.append('excel_file', archivo);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        console.log("Enviando solicitud de carga...");
+
+        abortController = new AbortController();
+
+        try {
+            // Realizar la solicitud con `fetch`
+            const response = await fetch("{% url 'cargar-mandos-preliminar' %}", {
+                method: 'POST',
+                body: formData,
+                signal: abortController.signal
+            });
+
+            console.log("Estado de la respuesta: ", response.status);  // Mostrar el código de estado HTTP
+            console.log("Respuesta completa: ", response);
+
+            if (response.ok) {
+                console.log("Redirigiendo a la vista preliminar...");
+                window.location.href = "{% url 'cargar-mandos-preliminar' %}";
+            }
+        } catch (error) {
+            console.error("Error capturado: ", error.message);
+            if (error.name === 'AbortError') {
+                document.getElementById('mensajeError').innerHTML = 'Carga cancelada por el usuario.';
+            } else {
+                document.getElementById('mensajeError').innerHTML = 'Error: ' + error.message;
+            }
+            document.getElementById('mensajeError').style.display = 'block';
+        } finally {
+            document.getElementById('cancelarBtn').style.display = 'none';
+            document.getElementById('cargarBtn').disabled = false;
+        }
+    }
+
+    // Función para cancelar la carga del archivo
+    function cancelarCarga() {
+        if (abortController) {
+            console.log("Carga cancelada por el usuario.");
+            abortController.abort();
+        }
+    }
+</script>
+
+
+
+
+{% endblock %}

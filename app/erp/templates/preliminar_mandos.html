@@ -1,0 +1,29 @@
+{% extends "body.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4">Vista Preliminar de Mandos Navales</h2>
+    <form method="post" action="{% url 'confirmar-carga-mandos' %}">
+        {% csrf_token %}
+        <table class="table table-bordered table-hover mt-3">
+            <thead>
+                <tr>
+                    <th>Clave</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>{{ row.clave }}</td>
+                    <td>{{ row.descripcion }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-success mt-3">Confirmar Carga</button>
+        <a href="{% url 'cargar-mandos-preliminar' %}" class="btn btn-warning mt-3 ml-3">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
