@@ -814,3 +814,5 @@ class PedidosPdf(View):
             return HttpResponse('Hubo un error al generar el PDF')
 
         return response
+
+

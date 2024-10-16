@@ -60,6 +60,7 @@ urlpatterns = [
     path('pedido/<int:pk>/editar/detalles/', AjaxDetallePedidoUpdateView.as_view(), name='ajax-detalle-pedido-update'),
     path('pedido/<int:pk>/pdf/', PedidoPDFView.as_view(), name='pedido-pdf'),
 
+
      
     
     # URLs para Almacenes
